@@ -7,4 +7,7 @@
                  start-page="starter-topic.md">
 
     <toc-element topic="starter-topic.md"/>
+    <toc-element topic="Roadmap-Development-Logs.md">
+        <toc-element topic="Week-1-Introduction-Setup﻿.md"/>
+    </toc-element>
 </instance-profile>

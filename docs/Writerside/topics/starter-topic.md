@@ -1,4 +1,4 @@
-# Student Management System
+# Introduction
 
 ## Objective
 
