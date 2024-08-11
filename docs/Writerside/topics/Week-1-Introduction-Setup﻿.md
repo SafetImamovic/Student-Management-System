@@ -1,4 +1,4 @@
-# Week 1: Introduction & Setup
+# 1. Introduction & Setup
 
 ## Description
 
