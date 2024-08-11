@@ -47,3 +47,33 @@ Files and dirs within the `alembic` dir:
 - `README.md` - Included with the various environment templates, should have something informative.
 - `script.py.mako` - This is a Mako template file which is used to generate new migration scripts. Whatever is here is used to generate new files within `versions/`
 - `versions/` - This directory holds the individual version scripts.
+
+
+## Configuration
+
+Inside the `alembic.ini` file, the following configuration is set:
+
+```ini
+sqlalchemy.url = postgresql://postgres:admin@localhost/test_db
+```
+
+`sqlalchemy.url` is the connection url for the PostgreSQL database. It follows the format:
+  ```
+  postgresql://username:password@host:port/database
+  ```
+
+In this case, it's:
+- `username`: `postgres`
+- `password`: `admin`
+- `host`: `localhost`
+- `database`: `test_db`
+
+Then inside the `env.py` file, the following configuration is set:
+
+```python
+from app.database import Base
+from app.models import *
+...
+target_metadata = Base.metadata
+...
+```

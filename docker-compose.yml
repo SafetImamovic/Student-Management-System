@@ -8,6 +8,8 @@ services:
       - student-management-system-network
     ports:
       - "5432:5432"
+    volumes:
+      - psqldata:/var/lib/postgresql/data
 
   api:
     build: .
@@ -18,6 +20,9 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/usr/src/app/app
+
+volumes:
+  psqldata:
 
 networks:
   student-management-system-network:

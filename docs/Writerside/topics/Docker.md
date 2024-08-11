@@ -133,7 +133,7 @@ COPY app ./app
 
 EXPOSE 8000
 
-CMD ["fastapi", "run", "app/main.py", "--port", "8000", "--host", "0.0.0.0"]
+CMD ["fastapi", "run", "app/main.py", "--port", "8000", "--host", "0.0.0.0", "--reload"]
 ```
 
 - `FROM python:3.12.5-alpine3.19` - Lightweight version of the Python 3.12.5 image that is based on the Alpine Linux distribution.
@@ -537,6 +537,8 @@ services:
       - student-management-system-network
     ports:
       - "5432:5432"
+    volumes:
+      - ./app:/usr/src/app/app
 
   student-management-system-api:
     build: .
