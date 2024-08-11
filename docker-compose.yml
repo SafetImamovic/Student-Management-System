@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres
+    container_name: student-management-system-db-server
+    environment:
+      POSTGRES_PASSWORD: admin
+    networks:
+      - student-management-system-network
+    ports:
+      - "5432:5432"
+
+  student-management-system-api:
+    build: .
+    container_name: student-management-system-api
+    networks:
+      - student-management-system-network
+    ports:
+      - "8000:8000"
+
+networks:
+  student-management-system-network:
+    driver: bridge
