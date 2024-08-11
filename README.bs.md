@@ -2,19 +2,43 @@
 
 # Sistem za Upravljanje Studentima
 
-## Brza Postavka
+Naravno, evo prijevoda na bosanski:
 
-Ovaj projekat koristi Docker za pokretanje FastAPI i PostgreSQL-a u zasebnim kontejnerima.
+## Brza Instalacija
 
-Da biste pokrenuli FastAPI i PostgreSQL kontejnere, pokrenite sljedeću komandu u korijenu projekta:
+Ovaj projekt koristi Docker za pokretanje FastAPI i PostgreSQL u odvojenim kontejnerima.
+
+### FastAPI & PostgreSQL
+
+Da biste pokrenuli FastAPI i PostgreSQL kontejnere, pokrenite sljedeću komandu u korijenskom direktoriju projekta:
 
 ```Bash
-./start
+./scripts/start
 ```
 
-Ovaj skript će kreirati zajedničku mrežu, izgraditi sliku za FastAPI, pokrenuti FastAPI i PostgreSQL kontejnere, i prikazati logove kontejnera.
+Ovaj skript će kreirati zajedničku mrežu, izgraditi FastAPI sliku, pokrenuti FastAPI i PostgreSQL kontejnere i ispisati logove kontejnera.
 
-Nakon uspješne izgradnje, pokretanje `docker ps` bi trebalo prikazati aktivne kontejnere.
+Nakon uspješnih izgradnji, komanda `docker ps` bi trebala prikazati aktivne kontejnere.
+
+Zatim, posjetite `http://localhost:8000/` ili `http://127.0.0.1:8000/` u pregledniku da biste vidjeli HTML sadržaj:
+
+```Bash
+{"Hello": "World"}
+```
+
+### PostgreSQL Klijent
+
+Da biste pokrenuli PSQL klijent kao kontejner, pokrenite:
+
+```Bash
+./scripts/start-psql-client
+```
+
+Ovaj skript pokreće novi kontejner na osnovu postgres docker slike. Ovaj kontejner nije specificiran u docker compose datoteci, već se treba pokrenuti ako ne želite preuzeti i instalirati postgres drajver lokalno.
+
+Pokreće klijent i povezuje se na mrežu na kojoj je već baza podataka. Ako kontejner baze podataka nije aktivan, klijent će prikazati greške.
+
+### Zaustavljanje & Ciscenje
 
 Da biste zaustavili kontejnere, pokrenite:
 
@@ -22,20 +46,23 @@ Da biste zaustavili kontejnere, pokrenite:
 docker-compose down
 ```
 
-> Također možete pokrenuti:
-> ```Bash
-> ./start --help
-> ```
-
-Nakon toga, posjećivanje `http://localhost:8000/` ili `http://127.0.0.1:8000/` u pretraživaču će rezultirati HTML tijelom:
+ili pokrenite:
 
 ```Bash
-{"Hello": "World"}
+./scripts/clean-up
 ```
 
-[_Više detalja o postavljanju Dockera, Dockerfile-a i Docker Compose-a možete pronaći ovdje_](https://safetimamovic.github.io/Student-Management-System/docker.html)
+### Dodatne Opcije
 
-> Volumes još nisu integrisani, tako da live ažuriranja ne rade
+Za dodatne opcije u vezi sa upravljanjem klijent kontejnerom i mrežom.
+
+> Također možete pokrenuti:
+> ```Bash
+> ./scripts/{naziv skripta} --help
+> ```
+> Da vidite kako rade.
+
+[_Više detalja o postavljanju Dockera, Dockerfile-a i Docker Compose-a možete pronaći ovdje_](https://safetimamovic.github.io/Student-Management-System/docker.html)
 
 ## Cilj
 

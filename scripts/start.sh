@@ -11,6 +11,7 @@ function show_help {
     echo "Ensure that Docker and docker-compose are installed before running this script."
     echo ""
     echo "Run: 'docker compose down' to stop and remove all instances started when 'start.sh' is called."
+    echo "or run: './scripts/clean-up' to do the same with some other options"
     echo ""
 }
 

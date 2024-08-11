@@ -18,26 +18,63 @@ Benefits of using Docker for a FastAPI, PostgreSQL, and Alembic project:
 <![CDATA[
 student-management-system (root)
 ├── .gitignore
-├── docker-compose.yml  # + Docker Compose configuration
-├── Dockerfile          # + Dockerfile for FastAPI
-├── start.ps1           # + PowerShell script to start the FastAPI and PostgreSQL containers
-├── start.sh            # + Shell script to start the FastAPI and PostgreSQL containers
+├── docker-compose.yml
+├── Dockerfile
 ├── README.bs.md
 ├── README.md
 ├── requirements.txt
-├── .github/
 ├── app/
-└── docs/
+└── scripts/            # + scripts for managing the containers
+    ├── clean-up.ps1
+    ├── clean-up.sh
+    ├── start-psql-client.ps1
+    ├── start-psql-client.sh
+    ├── start.ps1
+    └── start.sh
 ]]>
 </code-block>
+
+This project uses Docker to run FastAPI and PostgreSQL in separate containers.
+
+<procedure title="FastAPI and PostgreSQL">
 
 To run the FastAPI and PostgreSQL containers run the following command in the project root:
 
 ```Bash
-./start
+./scripts/start
 ```
 
-This script will build the FastAPI image, start the FastAPI and PostgreSQL containers, and output the container logs.
+This script will create a shared network, build the FastAPI image, start the FastAPI and PostgreSQL containers, and output the container logs.
+
+After successful builds, running `docker ps` should show the active containers.
+
+Then visiting `http://localhost:8000/` or `http://127.0.0.1:8000/` in a browser will result with the html body of:
+
+```Bash
+{"Hello": "World"}
+```
+
+</procedure>
+
+<procedure title="PostgreSQL Client">
+
+To run a PSQL client as a container run:
+
+```Bash
+./scripts/start-psql-client
+```
+
+This script starts a new container based on the postgres docker image.
+This container isn't specified in the docker compose file rather this
+should be run if you don't want to download and install the postgres
+driver locally.
+
+It starts the client and connects to the network on which the database is
+already on. If the database container isn't active the client will throw
+errors.
+</procedure>
+
+<procedure title="Stopping and Clean Up">
 
 To stop the containers run:
 
@@ -45,61 +82,28 @@ To stop the containers run:
 docker-compose down
 ```
 
+or run:
+
+```Bash
+./scripts/clean-up
+```
+
+For some more options when it comes to handling the client container and network.
+</procedure>
+
+<procedure title="Additional Options">
+
 > You can also run:
 > ```Bash
-> ./start --help
+> ./scripts/{script name} --help
 > ```
+> To see how they work.
 
-<code-block collapsed-title="Console Output" collapsible="true" lang="Bash">
-<![CDATA[
-(venv) PS C:\Users\Safet\Desktop\Student-Management-System> ./start.ps1
-Running docker-compose up...
-[+] Running 3/3
- ✔ Network student-management-system_student-management-system-network  Created                                                                                                                         0.0s 
- ✔ Container student-management-system-db-server                        Started                                                                                                                         0.6s 
- ✔ Container student-management-system-api                              Started                                                                                                                         0.6s 
-Container 'student-management-system-db-server' is running.
+</procedure>
 
-Container 'student-management-system-db-server' listening on port 5432.
-Port 5432 is port forwarded to local port 5432.
+[_More details on setting up Docker, Dockerfile and Docker Compose can be found here_](https://safetimamovic.github.io/Student-Management-System/docker.html)
 
-Container 'student-management-system-api' is running.
-
-Container 'student-management-system-api' listening on port 8000 and host 0.0.0.0.
-Port 8000 is port forwarded to local port 8000.
-
-Currently running containers:
-CONTAINER ID   IMAGE                                                     COMMAND                  CREATED        STATUS                  PORTS                    NAMES
-14ca24c2e47d   postgres                                                  "docker-entrypoint.s…"   1 second ago   Up Less than a second   0.0.0.0:5432->5432/tcp   student-management-system-db-server        
-4ce737b36d78   student-management-system-student-management-system-api   "fastapi run app/mai…"   1 second ago   Up Less than a second   0.0.0.0:8000->8000/tcp   student-management-system-api
-(venv) PS C:\Users\Safet\Desktop\Student-Management-System> docker ps  
-CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
-(venv) PS C:\Users\Safet\Desktop\Student-Management-System> ./start    
-Running docker-compose up...
-[+] Running 3/3
-✔ Network student-management-system_student-management-system-network  Created                                                                                                                         0.0s
-✔ Container student-management-system-api                              Started                                                                                                                         0.7s
-✔ Container student-management-system-db-server                        Started                                                                                                                         0.7s
-Container 'student-management-system-db-server' is running.
-
-Container 'student-management-system-db-server' listening on port 5432.
-Port 5432 is port forwarded to local port 5432.
-
-Container 'student-management-system-api' is running.
-
-Container 'student-management-system-api' listening on port 8000 and host 0.0.0.0.
-Port 8000 is port forwarded to local port 8000.
-
-Currently running containers:
-CONTAINER ID   IMAGE                                                     COMMAND                  CREATED         STATUS                  PORTS                    NAMES
-b2cbe1283d32   student-management-system-student-management-system-api   "fastapi run app/mai…"   2 seconds ago   Up Less than a second   0.0.0.0:8000->8000/tcp   student-management-system-api
-b75365e985c2   postgres                                                  "docker-entrypoint.s…"   2 seconds ago   Up Less than a second   0.0.0.0:5432->5432/tcp   student-management-system-db-server
-]]>
-</code-block>
-
-Then visiting `http://localhost:8000/` or `http://127.0.0.1:8000/` in a browser:
-
-<img src="1.png" />
+> Volumes aren't integrated yet, so live updates don't work
 
 
 ## Dockerfile for FastAPI
@@ -171,12 +175,13 @@ docker run --name student-management-system-api -p 8000:8000 student-management-
 
 <code-block lang="Bash" collapsible="true" collapsed-title="Console Output">
 <![CDATA[
+
 (venv) PS C:\Users\Safet\Desktop\Student-Management-System> >>> docker run --name student-management-system-api -p 8000:8000 student-management-system-image <<<
-INFO     Using path app/main.py                                                 
-INFO     Resolved absolute path /usr/src/app/app/main.py
+INFO     Using path app\main.py                                                 
+INFO     Resolved absolute path \usr\src\app\app\main.py
 INFO     Searching for package file structure from directories with __init__.py
          files
-INFO     Importing from /usr/src/app/app
+INFO     Importing from \usr\src\app\app
 
  ╭─ Python module file ─╮
  │                      │
@@ -197,9 +202,9 @@ INFO     Using import string main:app
 
  ╭─────────── FastAPI CLI - Production mode ───────────╮
  │                                                     │
- │  Serving at: http://0.0.0.0:8000                    │
+ │  Serving at: http:\\0.0.0.0:8000                    │
  │                                                     │
- │  API docs: http://0.0.0.0:8000/docs                 │
+ │  API docs: http:\\0.0.0.0:8000\docs                 │
  │                                                     │
  │  Running in production mode, for development use:   │
  │                                                     │
@@ -210,7 +215,7 @@ INFO     Using import string main:app
 INFO:     Started server process [1]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Uvicorn running on http:\\0.0.0.0:8000 (Press CTRL+C to quit)
 ]]>
 </code-block>
 
