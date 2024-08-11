@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
 
-  student-management-system-api:
+  api:
     build: .
     container_name: student-management-system-api
     networks:
