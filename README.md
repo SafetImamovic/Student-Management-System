@@ -67,8 +67,6 @@ For some more options when it comes to handling the client container and network
 
 [_More details on setting up Docker, Dockerfile and Docker Compose can be found here_](https://safetimamovic.github.io/Student-Management-System/docker.html)
 
-> Volumes aren't integrated yet, so live updates don't work
-
 ## Objective
 
 This project is designed to provide practical experience in building and managing APIs using:

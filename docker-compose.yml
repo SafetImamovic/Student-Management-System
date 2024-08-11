@@ -16,6 +16,8 @@ services:
       - student-management-system-network
     ports:
       - "8000:8000"
+    volumes:
+      - ./app:/usr/src/app/app
 
 networks:
   student-management-system-network:
