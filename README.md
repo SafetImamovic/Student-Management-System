@@ -2,6 +2,71 @@
 
 # Student Management System
 
+## Quick Setup
+
+This project uses Docker to run FastAPI and PostgreSQL in separate containers.
+
+### FastAPI & PostgreSQL
+
+To run the FastAPI and PostgreSQL containers run the following command in the project root:
+
+```Bash
+./scripts/start
+```
+
+This script will create a shared network, build the FastAPI image, start the FastAPI and PostgreSQL containers, and output the container logs.
+
+After successful builds, running `docker ps` should show the active containers.
+
+Then visiting `http://localhost:8000/` or `http://127.0.0.1:8000/` in a browser will result with the html body of:
+
+```Bash
+{"Hello": "World"}
+```
+
+### PostgreSQL Client
+
+To run a PSQL client as a container run:
+
+```Bash
+./scripts/start-psql-client
+```
+
+This script starts a new container based on the postgres docker image.
+This container isn't specified in the docker compose file rather this 
+should be run if you don't want to download and install the postgres 
+driver locally.
+
+It starts the client and connects to the network on which the database is
+already on. If the database container isn't active the client will throw 
+errors.
+
+### Stopping & Clean Up
+
+To stop the containers run:
+
+```Bash
+docker-compose down
+```
+
+or run:
+
+```Bash
+./scripts/clean-up
+```
+
+### Additional Options
+
+For some more options when it comes to handling the client container and network.
+
+> You can also run:
+> ```Bash
+> ./scripts/{script name} --help
+> ```
+> To see how they work.
+
+[_More details on setting up Docker, Dockerfile and Docker Compose can be found here_](https://safetimamovic.github.io/Student-Management-System/docker.html)
+
 ## Objective
 
 This project is designed to provide practical experience in building and managing APIs using:

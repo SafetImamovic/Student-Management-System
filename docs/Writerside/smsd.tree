@@ -8,6 +8,12 @@
 
     <toc-element topic="starter-topic.md"/>
     <toc-element topic="Roadmap-Development-Logs.md">
-        <toc-element topic="Week-1-Introduction-Setup﻿.md"/>
+        <toc-element topic="Week-1.md">
+            <toc-element topic="Week-1-Introduction-Setup﻿.md"/>
+            <toc-element topic="Docker.md"/>
+            <toc-element topic="3-Alembic.md"/>
+            <toc-element topic="Database-Setup.md"/>
+            <toc-element topic="Alembic-Simple-Testing.md"/>
+        </toc-element>
     </toc-element>
 </instance-profile>
