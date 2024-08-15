@@ -30,3 +30,11 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+def delete_user(db: Session, user_id: int):
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    db.delete(db_user)
+    db.commit()
+    return db_user
+

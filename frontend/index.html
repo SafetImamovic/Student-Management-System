@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Frontend</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Users Management</h1>
+
+    <div>
+        <h2>Create User</h2>
+        <form id="createUserForm">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" required>
+
+            <label for="last_name">Last Name:</label>
+            <input type="text" id="last_name" name="last_name" required>
+
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="is_active">Active:</label>
+            <input type="checkbox" id="is_active" name="is_active" checked>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="user_type_id">User Type ID:</label>
+            <input type="number" id="user_type_id" name="user_type_id" required>
+
+            <button type="submit">Create User</button>
+        </form>
+    </div>
+
+    <div>
+        <h2>Get User by Email</h2>
+        <form id="getUserForm">
+            <label for="getEmail">Email:</label>
+            <input type="email" id="getEmail" name="getEmail" required>
+            <button type="submit">Get User</button>
+        </form>
+        <div id="userDetails"></div>
+    </div>
+
+    <div>
+        <h2>List Users</h2>
+        <button id="listUsersButton">List Users</button>
+        <ul id="userList"></ul>
+    </div>
+
+    <script>
+        const apiUrl = 'http://localhost:8000'; // Adjust if your FastAPI server is running on a different port
+
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const user = {
+                first_name: formData.get('first_name'),
+                last_name: formData.get('last_name'),
+                username: formData.get('username'),
+                email: formData.get('email'),
+                age: parseInt(formData.get('age'), 10),
+                is_active: formData.get('is_active') === 'on',
+                password: formData.get('password'),
+                user_type_id: parseInt(formData.get('user_type_id'), 10),
+            };
+
+            try {
+                const response = await fetch(`${apiUrl}/users/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(user),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const createdUser = await response.json();
+                alert(`User created: ${JSON.stringify(createdUser)}`);
+                document.getElementById('createUserForm').reset(); // Reset form after successful creation
+            } catch (error) {
+                alert(`Failed to create user: ${error.message}`);
+            }
+        });
+
+        document.getElementById('getUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('getEmail').value;
+
+            try {
+                const response = await fetch(`${apiUrl}/users/${email}`);
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const user = await response.json();
+                document.getElementById('userDetails').innerHTML = `
+                    <p><strong>First Name:</strong> ${user.first_name}</p>
+                    <p><strong>Last Name:</strong> ${user.last_name}</p>
+                    <p><strong>Username:</strong> ${user.username}</p>
+                    <p><strong>Email:</strong> ${user.email}</p>
+                    <p><strong>Age:</strong> ${user.age}</p>
+                    <p><strong>Active:</strong> ${user.is_active}</p>
+                    <p><strong>User ID:</strong> ${user.user_id}</p>
+                    <p><strong>Created At:</strong> ${new Date(user.created_at).toLocaleString()}</p>
+                    <p><strong>Updated At:</strong> ${new Date(user.updated_at).toLocaleString()}</p>
+                    <p><strong>Last Login:</strong> ${new Date(user.last_login).toLocaleString()}</p>
+                `;
+            } catch (error) {
+                document.getElementById('userDetails').innerHTML = `Failed to fetch user: ${error.message}`;
+            }
+        });
+
+        document.getElementById('listUsersButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${apiUrl}/users/`);
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const users = await response.json();
+                const userList = document.getElementById('userList');
+                userList.innerHTML = '';
+                users.forEach(user => {
+                    const listItem = document.createElement('li');
+                    listItem.setAttribute('data-user-id', user.user_id); // Set user ID for deletion
+                    listItem.innerHTML = `
+                        <strong>Username:</strong> ${user.username}
+                        (<strong>Email:</strong> ${user.email},
+                        <strong>Active:</strong> ${user.is_active},
+                        <strong>Created At:</strong> ${new Date(user.created_at).toLocaleString()})
+                        <button class="delete-button">Delete</button>
+                    `;
+                    userList.appendChild(listItem);
+                });
+
+                // Attach event listeners to delete buttons
+                document.querySelectorAll('.delete-button').forEach(button => {
+                    button.addEventListener('click', handleDelete);
+                });
+            } catch (error) {
+                alert(`Failed to list users: ${error.message}`);
+            }
+        });
+
+        // Function to handle deletion of a user
+        async function handleDelete(event) {
+            const userId = event.target.parentElement.getAttribute('data-user-id');
+
+            if (confirm('Are you sure you want to delete this user?')) {
+                try {
+                    const response = await fetch(`${apiUrl}/del_user/${userId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to delete user');
+                    }
+
+                    // Remove the user from the list if the deletion was successful
+                    event.target.parentElement.remove();
+                    alert('User deleted successfully');
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    alert('There was an error deleting the user');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
