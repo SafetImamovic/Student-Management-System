@@ -12,15 +12,19 @@ So a new file `schemas.py` will be created in the `app` directory.
 
 ## Pydantic Models
 
-Create an StudentBase, CourseBase and EnrollmentBase Pydantic schemas to have common attributes while creating or reading data.
+Pydantic models are used to define the structure of the data that will be received and returned by the API.
 
-And create an StudentCreate, CourseCreate and EnrollmentCreate that inherit from them (so they will have the same attributes), plus any additional data (attributes) needed for creation.
+The general way of creating Pydantic models is to create a class that inherits from `BaseModel` from the `pydantic` module.
 
-So, the student will also have a password when creating it.
+That class itself will act as a base class for all the Pydantic models that we will create.
 
-But for security, the password won't be in other Pydantic schemas, for example, it won't be sent from the API when reading a student.
+e.g. we create a `UserBase` Pydantic model (or let's say "schema") to have common attributes while creating or reading data.
 
-The `schemas.py` file will contain the Pydantic models for the students, courses and enrollments data.
+Then we create a `UserCreate` model that inherits from `UserBase` (so it will have the same attributes), plus any additional data (attributes) needed for creation.
+
+So, the user will also have a password when creating it.
+
+But for security, the password won't be in other Pydantic models, for example, it won't be sent from the API when reading a user.
 
 
 

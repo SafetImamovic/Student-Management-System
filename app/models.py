@@ -20,6 +20,8 @@ class User(Base):
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
+    username = Column(String(50), nullable=False, unique=True)
+    hashed_password = Column(String(255), nullable=False)
     email = Column(String(100), nullable=False, unique=True)
     age = Column(Integer, CheckConstraint('age > 0'), nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)

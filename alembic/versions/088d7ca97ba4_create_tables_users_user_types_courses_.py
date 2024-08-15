@@ -1,8 +1,8 @@
 """create tables users, user_types, courses, enrollments
 
-Revision ID: 1c2b6b152893
+Revision ID: 088d7ca97ba4
 Revises: 
-Create Date: 2024-08-15 18:15:03.930775
+Create Date: 2024-08-15 18:25:20.148373
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1c2b6b152893'
+revision: str = '088d7ca97ba4'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -43,6 +43,8 @@ def upgrade() -> None:
     sa.Column('user_id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('first_name', sa.String(length=50), nullable=False),
     sa.Column('last_name', sa.String(length=50), nullable=False),
+    sa.Column('username', sa.String(length=50), nullable=False),
+    sa.Column('hashed_password', sa.String(length=255), nullable=False),
     sa.Column('email', sa.String(length=100), nullable=False),
     sa.Column('age', sa.Integer(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
@@ -53,7 +55,8 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['user_type_id'], ['user_types.user_type_id'], ),
     sa.PrimaryKeyConstraint('user_id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('email', name='uq_users_email')
+    sa.UniqueConstraint('email', name='uq_users_email'),
+    sa.UniqueConstraint('username')
     )
     op.create_table('enrollments',
     sa.Column('enrollment_id', sa.Integer(), autoincrement=True, nullable=False),

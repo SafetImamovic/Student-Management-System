@@ -33,12 +33,15 @@ __tablename__ = 'user_types'
 
     users = relationship('User', back_populates='user_type')
 
+
 class User(Base):
 __tablename__ = 'users'
 
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
+    username = Column(String(50), nullable=False, unique=True)
+    hashed_password = Column(String(255), nullable=False)
     email = Column(String(100), nullable=False, unique=True)
     age = Column(Integer, CheckConstraint('age > 0'), nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)
@@ -54,6 +57,7 @@ __tablename__ = 'users'
         UniqueConstraint('email', name='uq_users_email'),
     )
 
+
 class Course(Base):
 __tablename__ = 'courses'
 
@@ -67,6 +71,7 @@ __tablename__ = 'courses'
     is_active = Column(Boolean, nullable=False, default=True)
 
     enrollments = relationship('Enrollment', back_populates='course')
+
 
 class Enrollment(Base):
 __tablename__ = 'enrollments'
@@ -84,7 +89,7 @@ __tablename__ = 'enrollments'
 
 ]]>
 
-</code-block>>
+</code-block>
 
 In this code:
 - We define the `UserType`, `User`, `Course`, and `Enrollment` models.
@@ -150,9 +155,9 @@ If we take a look at the revision script, we can see the SQL commands that were 
 <![CDATA[
 """create tables users, user_types, courses, enrollments
 
-Revision ID: 1c2b6b152893
+Revision ID: 088d7ca97ba4
 Revises:
-Create Date: 2024-08-15 18:15:03.930775
+Create Date: 2024-08-15 18:25:20.148373
 
 """
 from typing import Sequence, Union
@@ -162,7 +167,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1c2b6b152893'
+revision: str = '088d7ca97ba4'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -193,6 +198,8 @@ op.create_table('users',
 sa.Column('user_id', sa.Integer(), autoincrement=True, nullable=False),
 sa.Column('first_name', sa.String(length=50), nullable=False),
 sa.Column('last_name', sa.String(length=50), nullable=False),
+sa.Column('username', sa.String(length=50), nullable=False),
+sa.Column('hashed_password', sa.String(length=255), nullable=False),
 sa.Column('email', sa.String(length=100), nullable=False),
 sa.Column('age', sa.Integer(), nullable=True),
 sa.Column('is_active', sa.Boolean(), nullable=False),
@@ -203,7 +210,8 @@ sa.Column('user_type_id', sa.Integer(), nullable=False),
 sa.ForeignKeyConstraint(['user_type_id'], ['user_types.user_type_id'], ),
 sa.PrimaryKeyConstraint('user_id'),
 sa.UniqueConstraint('email'),
-sa.UniqueConstraint('email', name='uq_users_email')
+sa.UniqueConstraint('email', name='uq_users_email'),
+sa.UniqueConstraint('username')
 )
 op.create_table('enrollments',
 sa.Column('enrollment_id', sa.Integer(), autoincrement=True, nullable=False),
