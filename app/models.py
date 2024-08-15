@@ -1,35 +1,66 @@
-from sqlalchemy import Column, Integer, String, Text, Date, ForeignKey
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Date, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import relationship
 from .database import Base
 
+class UserType(Base):
+    __tablename__ = 'user_types'
 
-class Student(Base):
-    __tablename__ = 'students'
-    student_id = Column(Integer, primary_key=True, autoincrement=True)
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    email = Column(String, nullable=False, unique=True)
-    age = Column(Integer, nullable=False)
+    user_type_id = Column(Integer, primary_key=True, autoincrement=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    name = Column(String(50), nullable=False, unique=True)
 
-    enrollments = relationship('Enrollment', back_populates='student')
+    users = relationship('User', back_populates='user_type')
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    email = Column(String(100), nullable=False, unique=True)
+    age = Column(Integer, CheckConstraint('age > 0'), nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    user_type_id = Column(Integer, ForeignKey('user_types.user_type_id'), nullable=False)
+
+    user_type = relationship('UserType', back_populates='users')
+    enrollments = relationship('Enrollment', back_populates='user')
+
+    __table_args__ = (
+        UniqueConstraint('email', name='uq_users_email'),
+    )
 
 
 class Course(Base):
     __tablename__ = 'courses'
+
     course_id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
-    description = Column(Text, nullable=False)
+    name = Column(String(100), nullable=False)
+    description = Column(Text, nullable=True)
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = Column(Boolean, nullable=False, default=True)
 
     enrollments = relationship('Enrollment', back_populates='course')
 
 
 class Enrollment(Base):
     __tablename__ = 'enrollments'
+
     enrollment_id = Column(Integer, primary_key=True, autoincrement=True)
-    student_id = Column(Integer, ForeignKey('students.student_id'), nullable=False)
+    enrolled_date = Column(DateTime, default=datetime.utcnow)
+    end_date = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    associative_data = Column(Text, nullable=True)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     course_id = Column(Integer, ForeignKey('courses.course_id'), nullable=False)
 
-    student = relationship('Student', back_populates='enrollments')
+    user = relationship('User', back_populates='enrollments')
     course = relationship('Course', back_populates='enrollments')
