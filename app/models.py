@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Date, F
 from sqlalchemy.orm import relationship
 from .database import Base
 
+
 class UserType(Base):
     __tablename__ = 'user_types'
 

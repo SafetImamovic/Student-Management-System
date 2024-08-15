@@ -34,7 +34,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    hashed_password: str
+    password: str
     user_type_id: int
 
 
