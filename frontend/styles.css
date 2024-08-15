@@ -1,102 +1,72 @@
-/* General Body Styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: #121212; /* Dark background */
-    color: #e0e0e0; /* Light text color */
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column; /* Stack items vertically */
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    background-color: #2d2d2d;
+
 }
 
-/* Container Styles */
-.container {
-    max-width: 1200px; /* Increase maximum width */
-    width: 100%;
-    padding: 20px;
-    background-color: #1e1e1e; /* Slightly lighter dark background */
+*{
+    color: white;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+div {
+    background: black;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    box-sizing: border-box; /* Ensure padding is included in the width */
-    display: flex;
-    flex-direction: column; /* Stack elements vertically within the container */
-    align-items: stretch; /* Allow children to stretch to container width */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 20px auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
 }
 
-/* Heading Styles */
-h1, h2 {
-    color: #ffffff; /* White color for headings */
-    margin-bottom: 10px;
+h2 {
+    margin-top: 0;
 }
 
-/* Form Styles */
-form {
-    margin-bottom: 20px;
-}
-
-/* Input and Label Styles */
 label {
     display: block;
-    margin-bottom: 8px;
-    color: #e0e0e0;
+    margin: 10px 0 5px;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="number"],
-input[type="password"],
-input[type="checkbox"] {
-    width: 100%; /* Full width of the parent container */
-    padding: 12px; /* Increased padding for larger inputs */
-    margin-bottom: 12px; /* Increased margin for better spacing */
-    border: 1px solid #333;
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    background-color: #333;
-    color: #e0e0e0;
-    box-sizing: border-box; /* Ensure padding and border are included in the width */
-}
-
-input[type="checkbox"] {
-    width: auto;
-    margin-right: 10px;
+    box-sizing: border-box;
+    color: black;
 }
 
 button {
-    background-color: #6200ea; /* Primary button color */
-    color: #ffffff; /* White text */
+    background-color: white;
     border: none;
+    padding: 10px 20px;
     border-radius: 4px;
-    padding: 12px 20px; /* Increased padding for larger button */
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
+    color: black;
+    margin-top: 10px;
 }
 
 button:hover {
-    background-color: #3700b3; /* Darker shade on hover */
+    background-color: #0056b3;
 }
 
-/* List Styles */
 ul {
     list-style-type: none;
     padding: 0;
 }
 
 li {
-    background-color: #1e1e1e;
-    border: 1px solid #333;
+    background: #2d2d2d;
+    margin: 5px 0;
+    padding: 10px;
     border-radius: 4px;
-    padding: 12px; /* Increased padding for better readability */
-    margin-bottom: 12px; /* Increased margin for spacing */
-}
-
-/* Details Styles */
-#userDetails {
-    background-color: #1e1e1e;
-    border: 1px solid #333;
-    border-radius: 4px;
-    padding: 15px;
 }
