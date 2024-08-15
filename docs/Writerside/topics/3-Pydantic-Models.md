@@ -36,99 +36,99 @@ from datetime import datetime
 
 
 class UserTypeBase(BaseModel):
-name: str
+    name: str
 
 
 class UserTypeCreate(UserTypeBase):
-pass
+    pass
 
 
 class UserTypeUpdate(UserTypeBase):
-pass
+    pass
 
 
 class UserTypeInDB(UserTypeBase):
-user_type_id: int
-created_at: datetime
-updated_at: datetime
+    user_type_id: int
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
 
 
 class UserBase(BaseModel):
-first_name: str
-last_name: str
-username: str
-email: str
-age: Optional[int] = None
-is_active: bool = True
+    first_name: str
+    last_name: str
+    username: str
+    email: str
+    age: Optional[int] = None
+    is_active: bool = True
 
 
 class UserCreate(UserBase):
-hashed_password: str
-user_type_id: int
+    hashed_password: str
+    user_type_id: int
 
 
 class UserUpdate(UserBase):
-hashed_password: Optional[str] = None
-user_type_id: Optional[int] = None
+    hashed_password: Optional[str] = None
+    user_type_id: Optional[int] = None
 
 
 class UserInDB(UserBase):
-user_id: int
-created_at: datetime
-updated_at: datetime
-last_login: datetime
+    user_id: int
+    created_at: datetime
+    updated_at: datetime
+    last_login: datetime
 
     class Config:
         orm_mode = True
 
 
 class CourseBase(BaseModel):
-name: str
-description: Optional[str] = None
-start_date: datetime
-end_date: datetime
-is_active: bool = True
+    name: str
+    description: Optional[str] = None
+    start_date: datetime
+    end_date: datetime
+    is_active: bool = True
 
 
 class CourseCreate(CourseBase):
-pass
+    pass
 
 
 class CourseUpdate(CourseBase):
-pass
+    pass
 
 
 class CourseInDB(CourseBase):
-course_id: int
-created_at: datetime
-updated_at: datetime
+    course_id: int
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         orm_mode = True
 
 
 class EnrollmentBase(BaseModel):
-enrolled_date: datetime
-end_date: Optional[datetime] = None
-associative_data: Optional[str] = None
-user_id: int
-course_id: int
+    enrolled_date: datetime
+    end_date: Optional[datetime] = None
+    associative_data: Optional[str] = None
+    user_id: int
+    course_id: int
 
 
 class EnrollmentCreate(EnrollmentBase):
-pass
+    pass
 
 
 class EnrollmentUpdate(EnrollmentBase):
-pass
+    pass
 
 
 class EnrollmentInDB(EnrollmentBase):
-enrollment_id: int
-updated_at: datetime
+    enrollment_id: int
+    updated_at: datetime
 
     class Config:
         orm_mode = True

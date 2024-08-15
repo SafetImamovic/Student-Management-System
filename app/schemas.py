@@ -15,7 +15,7 @@ class UserTypeUpdate(UserTypeBase):
     pass
 
 
-class UserTypeInDB(UserTypeBase):
+class UserType(UserTypeBase):
     user_type_id: int
     created_at: datetime
     updated_at: datetime
@@ -43,7 +43,7 @@ class UserUpdate(UserBase):
     user_type_id: Optional[int] = None
 
 
-class UserInDB(UserBase):
+class User(UserBase):
     user_id: int
     created_at: datetime
     updated_at: datetime
@@ -69,7 +69,7 @@ class CourseUpdate(CourseBase):
     pass
 
 
-class CourseInDB(CourseBase):
+class Course(CourseBase):
     course_id: int
     created_at: datetime
     updated_at: datetime
@@ -94,7 +94,7 @@ class EnrollmentUpdate(EnrollmentBase):
     pass
 
 
-class EnrollmentInDB(EnrollmentBase):
+class Enrollment(EnrollmentBase):
     enrollment_id: int
     updated_at: datetime
 
