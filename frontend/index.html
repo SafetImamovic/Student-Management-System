@@ -3,59 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management System</title>
+    <title>User Information</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <h1>Users Management</h1>
-
-    <div>
-        <h2>Create User</h2>
-        <form id="createUserForm">
-            <label for="first_name">First Name:</label>
-            <input type="text" id="first_name" name="first_name" required>
-
-            <label for="last_name">Last Name:</label>
-            <input type="text" id="last_name" name="last_name" required>
-
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age" required>
-
-            <label for="is_active">Active:</label>
-            <input type="checkbox" id="is_active" name="is_active" checked>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <label for="user_type_id">User Type ID:</label>
-            <input type="number" id="user_type_id" name="user_type_id" required>
-
-            <button type="submit">Create User</button>
+<body class="bg-dark text-light">
+    <div class="container">
+        <button type="button" class="collapsible">Fetch All User Types</button>
+        <div class="content">
+            <div class="input-group mb-3">
+                <input type="number" id="skip_types" class="form-control" placeholder="Skip (default 0)">
+                <input type="number" id="limit_types" class="form-control" placeholder="Limit (default 10)">
+                <button class="btn btn-info" onclick="fetchUserTypesList()">Fetch User Types List</button>
+            </div>
+            <div id="user-types-list" class="user-list"></div>
+        </div>
+        <button type="button" class="collapsible">Add New User Type</button>
+        <div class="content">
+            <form id="user-type-form" class="mb-3">
+                <div class="mb-3">
+                    <label for="user-type-name" class="form-label">User Type Name</label>
+                    <input type="text" id="user-type-name" class="form-control" placeholder="User Type Name" required>
+                </div>
+                <button type="button" class="btn btn-success" onclick="createUserType()">Add User Type</button>
+            </form>
+        </div>
+        <button type="button" class="collapsible">Fetch Specific User</button>
+        <div class="content">
+            <!-- Section for Fetching by User ID -->
+            <div class="input-group mb-3">
+                <input type="text" id="user-id" class="form-control" placeholder="Enter User ID">
+                <button class="btn btn-primary" onclick="fetchUserInfoById()">Fetch User Info by ID</button>
+            </div>
+            <!-- Section for Fetching by Email -->
+            <div class="input-group mb-3">
+                <input type="email" id="user-email" class="form-control" placeholder="Enter User Email">
+                <button class="btn btn-secondary" onclick="fetchUserInfoByEmail()">Fetch User Info by Email</button>
+            </div>
+            <!-- User Information Form -->
+            <div id="user-info" class="user-info"></div>
+        </div>
+        <button type="button" class="collapsible">Fetch All Users</button>
+        <div class="content">
+            <!-- Section for Fetching List of Users -->
+            <div class="input-group mb-3">
+                <input type="number" id="skip" class="form-control" placeholder="Skip (default 0)">
+                <input type="number" id="limit" class="form-control" placeholder="Limit (default 10)">
+                <button class="btn btn-info" onclick="fetchUserList()">Fetch User List</button>
+            </div>
+            <div id="user-list" class="user-list"></div>
+        </div>
+        <!-- User Creation Form -->
+        <button type="button" class="collapsible">Add New User</button>
+            <div class="content">
+            <form id="user-form" class="mb-3">
+            <div class="mb-3">
+                <label for="first-name" class="form-label">First Name</label>
+                <input type="text" id="first-name" class="form-control" placeholder="First Name">
+            </div>
+            <div class="mb-3">
+                <label for="last-name" class="form-label">Last Name</label>
+                <input type="text" id="last-name" class="form-control" placeholder="Last Name">
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" placeholder="Username">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" placeholder="Email">
+            </div>
+            <div class="mb-3">
+                <label for="age" class="form-label">Age</label>
+                <input type="number" id="age" class="form-control" placeholder="Age">
+            </div>
+            <div class="mb-3">
+                <label for="is-active" class="form-label">Active</label>
+                <input type="checkbox" id="is-active" class="form-check-input">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="Password">
+            </div>
+            <div class="mb-3">
+                <label for="user-type-id" class="form-label">User Type</label>
+                <select id="user-type-id" class="form-select">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            <button type="button" class="btn btn-success" onclick="createUser()">Add User</button>
         </form>
+        </div>
     </div>
 
-    <div>
-        <h2>Get User by Email</h2>
-        <form id="getUserForm">
-            <label for="getEmail">Email:</label>
-            <input type="email" id="getEmail" name="getEmail" required>
-            <button type="submit">Get User</button>
-        </form>
-        <div id="userDetails"></div>
-    </div>
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>
 
-    <div>
-        <h2>List Users</h2>
-        <button id="listUsersButton">List Users</button>
-        <ul id="userList"></ul>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

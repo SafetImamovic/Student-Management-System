@@ -31,11 +31,11 @@ class UserBase(BaseModel):
     email: str
     age: Optional[int] = None
     is_active: bool = True
+    user_type_id: int
 
 
 class UserCreate(UserBase):
     password: str
-    user_type_id: int
 
 
 class UserUpdate(UserBase):
