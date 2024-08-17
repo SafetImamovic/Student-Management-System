@@ -212,7 +212,7 @@ def delete_course(db: Session, course_id: int) -> models.Course:
 
 
 # -------------------------------------------------------------------------------------------------
-# Enrollment specific CRUD operations, # of functions = 5
+# Enrollment specific CRUD operations, # of functions = 4
 # -------------------------------------------------------------------------------------------------
 
 def get_enrollment_by_id(db: Session, enrollment_id: int) -> models.Enrollment:

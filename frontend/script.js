@@ -17,6 +17,7 @@ routes = {
     "enrollments_count/": "enrollments_count/",
     "enrollments/": "enrollments/",
     "courses/": "courses/",
+    "delete_enrollment/": "delete_enrollment/",
 }
 
 
@@ -42,6 +43,8 @@ function truncate()
                 showToast(`Error TRUNCATING tables: ${error.message}`);
             });
     }
+
+    updateCounts();
 }
 
 
@@ -71,6 +74,8 @@ function re_seed() {
     .catch(error => {
         showToast(`Error reseeding database tables: ${error.message}`);
     });
+
+    updateCounts();
 }
 
 
@@ -425,13 +430,36 @@ function fetchEnrollments() {
                     <td>${enrollment.enrollment_id}</td>
                     <td>${enrollment.enrolled_date}</td>
                     <td>${enrollment.end_date}</td>
+                    <td>${enrollment.associative_data}</td>
                     <td>${enrollment.user_id}</td>
                     <td>${enrollment.course_id}</td>
                 `;
                 enrollmentTableBody.appendChild(row);
+                row.innerHTML += `<button className="btn btn-danger" onClick="deleteEnrollment(${enrollment.enrollment_id})">Delete</button>`
             });
         });
 }
+
+function deleteEnrollment(id)
+{
+    if (confirm('Are you sure you want to delete this enrollment?')) {
+        fetch(url_address + routes["delete_enrollment/"] + `${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (response.ok) {
+                    showToast('Enrollment deleted successfully.');
+                    fetchEnrollments();
+                } else {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.detail || 'Unknown error');
+                    });
+                }
+            })
+            .catch(error => {
+                showToast(`Error deleting enrollment: ${error.message}`);
+            });
+    }
+}
+
 
 enrollmentForm.addEventListener('submit', event => {
     event.preventDefault();
@@ -705,19 +733,6 @@ function populateUserTypes() {
 window.onload = function() {
     populateUserTypes();
 };
-
-
-function update()
-{
-    fetchUsers();
-    fetchCourses();
-    populateUserTypes();
-    fetchCourseList();
-    updateCounts();
-    fetchUserTypesList();
-    fetchUserList();
-    fetchEnrollments();
-}
 
 fetchEnrollments();
 fetchUsers();

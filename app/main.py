@@ -1,12 +1,11 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from datetime import datetime
-
+from .initial_records import default_users, default_enrollments, default_courses
 from . import crud, models, schemas
 from .database import SessionLocal, engine
-
 from fastapi.middleware.cors import CORSMiddleware
+
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -53,66 +52,41 @@ def get_db():
         db.close()
 
 
+# -------------------------------------------------------------------------------------------------
+# Functions specifically using `db.execute`
+# -------------------------------------------------------------------------------------------------
+
 def reset_auto_increment(db: Session, table_name: str, column_name: str):
+    """
+    This function resets the autoincrement sequence in a given table
+    :param db: The
+    :param table_name:
+    :param column_name:
+    :return:
+    """
     # alter sequence user_types_user_type_id_seq restart with 1;
     reset_sql = text(f"alter sequence {table_name}_{column_name}_seq restart with 1")
     db.execute(reset_sql)
     db.commit()
 
 
-default_users = [
-    {
-        "first_name": "Safet",
-        "last_name": "Imamovic",
-        "username": "admin",
-        "email": "safet.imamovic.22@size.ba",
-        "age": 21,
-        "is_active": True,
-        "user_type_id": 1,
-        "hashed_password": "admin"
-    },
-    {
-        "first_name": "John",
-        "last_name": "Doe",
-        "username": "johndoe123",
-        "email": "john.doe@example.com",
-        "age": 21,
-        "is_active": True,
-        "user_type_id": 2,
-        "hashed_password": "password1"
-    },
-    {
-        "first_name": "Jane",
-        "last_name": "Smith",
-        "username": "janedoe69",
-        "email": "jane.smith@example.com",
-        "age": 22,
-        "is_active": True,
-        "user_type_id": 2,
-        "hashed_password": "password2"
-    }
-]
+def truncate_db(db: Session):
+    truncate_sql = text("truncate user_types, users, courses, enrollments;")
+    result = db.execute(truncate_sql)
+    db.commit()
+    return result
 
 
-default_courses = [
-    {
-        "name": "Python 101",
-        "description": "Basic Python",
-        "start_date": "2024-08-17T15:02:49.434Z",
-        "end_date": "2024-08-17T15:02:49.434Z",
-        "is_active": True
-    },
-    {
-        "name": "Alembic 101",
-        "description": "World Database Migration",
-        "start_date": "2024-08-17T15:02:49.434Z",
-        "end_date": "2024-08-17T15:02:49.434Z",
-        "is_active": True
-    },
-]
-
+# -------------------------------------------------------------------------------------------------
+# Seeding functions
+# -------------------------------------------------------------------------------------------------
 
 def seed_user_types(db: Session):
+    """
+    This function seeds the user_types table with some initial values
+    :param db:
+    :return:
+    """
     if db.query(models.UserType).count() == 0:
         reset_auto_increment(db, 'user_types', 'user_type_id')
 
@@ -126,6 +100,11 @@ def seed_user_types(db: Session):
 
 
 def seed_users(db: Session):
+    """
+    This function seeds the users table with some initial values
+    :param db:
+    :return:
+    """
     if db.query(models.User).count() == 0:
         reset_auto_increment(db, 'users', 'user_id')
 
@@ -135,6 +114,11 @@ def seed_users(db: Session):
 
 
 def seed_courses(db: Session):
+    """
+    This function seeds the courses table with some initial values
+    :param db:
+    :return:
+    """
     if db.query(models.Course).count() == 0:
         reset_auto_increment(db, 'courses', 'course_id')
 
@@ -143,26 +127,50 @@ def seed_courses(db: Session):
         db.commit()
 
 
-def truncate_db(db: Session):
-    truncate_sql = text("truncate user_types, users, courses, enrollments;")
-    result = db.execute(truncate_sql)
-    db.commit()
-    return result
+def seed_enrollments(db: Session):
+    """
+    This function seeds the enrollments table with some initial values
+    :param db:
+    :return:
+    """
+    if db.query(models.Enrollment).count() == 0:
+        reset_auto_increment(db, 'enrollments', 'enrollment_id')
 
+        for enrollment in default_enrollments:
+            db.add(models.Enrollment(**enrollment))
+        db.commit()
+
+
+# -------------------------------------------------------------------------------------------------
+# App startup specific path operation
+# -------------------------------------------------------------------------------------------------
 
 @app.on_event("startup")
 def on_startup():
+    """
+    On server startup, the seeding gets executed
+    :return:
+    """
     db = SessionLocal()
     seed_user_types(db)
     seed_users(db)
     seed_courses(db)
+    seed_enrollments(db)
     db.close()
 
+
+# -------------------------------------------------------------------------------------------------
+# Root specific path operation
+# -------------------------------------------------------------------------------------------------
 
 @app.get("/", tags=["Root"])
 def read_root():
     return {"Hello": "World!"}
 
+
+# -------------------------------------------------------------------------------------------------
+# Path operation's not specific to one Model
+# -------------------------------------------------------------------------------------------------
 
 @app.delete('/truncate_db/', tags=["TRUNCATE DATABASE"])
 def truncate_database(db: Session = Depends(get_db)):
@@ -185,6 +193,7 @@ def re_seed_database(db: Session = Depends(get_db)):
     seed_user_types(db)
     seed_users(db)
     seed_courses(db)
+    seed_enrollments(db)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -278,7 +287,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 
 # -------------------------------------------------------------------------------------------------
-# User Type specific CRUD operations, # of functions = 5
+# User Type specific CRUD operations, # of functions = 6
 # -------------------------------------------------------------------------------------------------
 
 @app.get('/user_types_count/', response_model=int, tags=["User Types"])
@@ -369,7 +378,7 @@ def delete_user_type(user_type_id: int, db: Session = Depends(get_db)):
 
 
 # -------------------------------------------------------------------------------------------------
-# Course specific CRUD operations, # of functions = 5
+# Course specific CRUD operations, # of functions = 6
 # -------------------------------------------------------------------------------------------------
 
 @app.get('/courses_count/', response_model=int, tags=["Courses"])
@@ -508,5 +517,23 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
     :return: The Enrollment instance
     """
     db_enrollment = crud.create_enrollment(db, enrollment)
+    return db_enrollment
+
+
+@app.delete('/delete_enrollment/{enrollment_id}', response_model=schemas.Enrollment, tags=["Enrollments"])
+def delete_enrollment(enrollment_id: int, db: Session = Depends(get_db)):
+    """
+    This path operation deletes an Enrollment using the crud.delete_enrollment() function
+    :param enrollment_id: id of the enrollment
+    :param db: The database session to use
+    :return: The Deleted Enrollment instance
+    """
+    db_enrollment = crud.get_enrollment_by_id(db, enrollment_id=enrollment_id)
+
+    if not db_enrollment:
+        raise HTTPException(status_code=404, detail="Enrollment not found")
+
+    crud.delete_enrollment(db, enrollment_id=enrollment_id)
+
     return db_enrollment
 
