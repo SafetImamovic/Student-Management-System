@@ -430,7 +430,6 @@ function fetchEnrollments() {
             data.forEach(enrollment => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${enrollment.enrollment_id}</td>
                     <td>${enrollment.enrolled_date}</td>
                     <td>${enrollment.end_date}</td>
                     <td>${enrollment.associative_data}</td>
@@ -438,7 +437,7 @@ function fetchEnrollments() {
                     <td>${enrollment.course_id}</td>
                 `;
                 enrollmentTableBody.appendChild(row);
-                row.innerHTML += `<button className="btn btn-danger" onClick="deleteEnrollment(${enrollment.enrollment_id})">Delete</button>`
+                // row.innerHTML += `<button className="btn btn-danger" onClick="deleteEnrollment(${enrollment.enrollment_id})">Delete</button>`
             });
         });
 }

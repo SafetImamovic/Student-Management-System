@@ -127,18 +127,18 @@ def seed_courses(db: Session):
         db.commit()
 
 
-def seed_enrollments(db: Session):
-    """
-    This function seeds the enrollments table with some initial values
-    :param db:
-    :return:
-    """
-    if db.query(models.Enrollment).count() == 0:
-        reset_auto_increment(db, 'enrollments', 'enrollment_id')
-
-        for enrollment in default_enrollments:
-            db.add(models.Enrollment(**enrollment))
-        db.commit()
+# def seed_enrollments(db: Session):
+#     """
+#     This function seeds the enrollments table with some initial values
+#     :param db:
+#     :return:
+#     """
+#     if db.query(models.Enrollment).count() == 0:
+#         reset_auto_increment(db, 'enrollments', 'enrollment_id')
+#
+#         for enrollment in default_enrollments:
+#             db.add(models.Enrollment(**enrollment))
+#         db.commit()
 
 
 # -------------------------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ def on_startup():
     seed_user_types(db)
     seed_users(db)
     seed_courses(db)
-    seed_enrollments(db)
+    # seed_enrollments(db)
     db.close()
 
 
@@ -485,21 +485,6 @@ def get_enrollments_count(db: Session = Depends(get_db)):
     return db.query(models.Enrollment).count()
 
 
-@app.get('/enrollments/{enrollment_id}', response_model=schemas.Enrollment, tags=["Enrollments"])
-def get_enrollment_by_id(enrollment_id: int, db: Session = Depends(get_db)):
-    """
-    This path operation returns an Enrollment using the crud.get_enrollment_by_id() function
-    :param enrollment_id: The id of the enrollment
-    :param db: The database session to use
-    :return: The Enrollment instance
-    """
-    db_enrollment = crud.get_enrollment_by_id(db, enrollment_id=enrollment_id)
-    if not db_enrollment:
-        raise HTTPException(status_code=404, detail="Enrollment not found")
-
-    return db_enrollment
-
-
 @app.get('/enrollments/', response_model=list[schemas.Enrollment], tags=["Enrollments"])
 def get_enrollments(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """
@@ -524,21 +509,4 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
     db_enrollment = crud.create_enrollment(db, enrollment)
     return db_enrollment
 
-
-@app.delete('/delete_enrollment/{enrollment_id}', response_model=schemas.Enrollment, tags=["Enrollments"])
-def delete_enrollment(enrollment_id: int, db: Session = Depends(get_db)):
-    """
-    This path operation deletes an Enrollment using the crud.delete_enrollment() function
-    :param enrollment_id: id of the enrollment
-    :param db: The database session to use
-    :return: The Deleted Enrollment instance
-    """
-    db_enrollment = crud.get_enrollment_by_id(db, enrollment_id=enrollment_id)
-
-    if not db_enrollment:
-        raise HTTPException(status_code=404, detail="Enrollment not found")
-
-    crud.delete_enrollment(db, enrollment_id=enrollment_id)
-
-    return db_enrollment
 

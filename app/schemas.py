@@ -95,7 +95,6 @@ class EnrollmentUpdate(EnrollmentBase):
 
 
 class Enrollment(EnrollmentBase):
-    enrollment_id: int
     updated_at: datetime
 
     class Config:

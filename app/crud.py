@@ -215,16 +215,6 @@ def delete_course(db: Session, course_id: int) -> models.Course:
 # Enrollment specific CRUD operations, # of functions = 4
 # -------------------------------------------------------------------------------------------------
 
-def get_enrollment_by_id(db: Session, enrollment_id: int) -> models.Enrollment:
-    """
-    This function queries the database for the Enrollment with the given enrollment_id
-    :param db: The database session
-    :param enrollment_id: Enrollment ID
-    :return: Enrollment with the given enrollment_id
-    """
-    return db.query(models.Enrollment).filter(models.Enrollment.enrollment_id == enrollment_id).first()
-
-
 def get_enrollments(db: Session, skip: int = 0, limit: int = 10) -> list[models.Enrollment]:
     """
     This function queries the database for the Enrollment with the given skip and limit boundaries

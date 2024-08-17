@@ -57,13 +57,12 @@ class Course(Base):
 class Enrollment(Base):
     __tablename__ = 'enrollments'
 
-    enrollment_id = Column(Integer, primary_key=True, autoincrement=True)
     enrolled_date = Column(Date, default=date)
     end_date = Column(Date, nullable=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     associative_data = Column(Text, nullable=True)
-    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
-    course_id = Column(Integer, ForeignKey('courses.course_id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False, primary_key=True)
+    course_id = Column(Integer, ForeignKey('courses.course_id'), nullable=False, primary_key=True)
 
     user = relationship('User', back_populates='enrollments')
     course = relationship('Course', back_populates='enrollments')
