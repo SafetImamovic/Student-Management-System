@@ -1,4 +1,4 @@
-<a href="https://github.com/SafetImamovic/Student-Management-System/blob/main/README.md"><img src="https://img.shields.io/badge/Lang-EN-red" alt=""></a> <a href="https://github.com/SafetImamovic/Student-Management-System/blob/main/README.bs.md"><img src="https://img.shields.io/badge/Lang-BS-blue" alt="Project Documentation"></a> <a href="https://safetimamovic.github.io/Student-Management-System/starter-topic.html"><img src="https://img.shields.io/badge/Project%20Documentation-gray" alt="Project Documentation"></a>
+<a href="https://safetimamovic.github.io/Student-Management-System/starter-topic.html"><img src="https://img.shields.io/badge/Project%20Documentation-gray" alt="Project Documentation"></a>
 
 # Student Management System
 
@@ -6,23 +6,29 @@
 
 This project uses Docker to run FastAPI and PostgreSQL in separate containers.
 
+It also runs a vanilla html, css and js frontend container.
+
 ### FastAPI & PostgreSQL
 
-To run the FastAPI and PostgreSQL containers run the following command in the project root:
+To run the FastAPI, PostgreSQL & Frontend containers run the following command in the project root:
 
 ```Bash
 ./scripts/start
 ```
 
-This script will create a shared network, build the FastAPI image, start the FastAPI and PostgreSQL containers, and output the container logs.
+This script will create a shared network, build the FastAPI and Frontend image, start the FastAPI, PostgreSQL & Frontend containers, and output the container logs.
 
 After successful builds, running `docker ps` should show the active containers.
 
-Then visiting `http://localhost:8000/` or `http://127.0.0.1:8000/` in a browser will result with the html body of:
+Then visiting `http://localhost:8000/` in a browser will result with the html body of:
 
 ```Bash
 {"Hello": "World"}
 ```
+
+And visiting `http://localhost:80/` in a browser will result in the Frontend Website:
+
+<img src="docs\Writerside\images\frontend.png">
 
 ### PostgreSQL Client
 

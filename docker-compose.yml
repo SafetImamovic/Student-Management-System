@@ -23,6 +23,13 @@ services:
     volumes:
       - ./app:/usr/src/app/app
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+
 volumes:
   psqldata:
 

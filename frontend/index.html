@@ -20,7 +20,7 @@
 
     <!--        Fetch All User Types-->
 
-    <button type="button" class="collapsible">Fetch All User Types</button>
+    <button type="button" class="collapsible"><div class="expand_sign">+</div><div>Fetch All User Types</div></button>
     <div class="content">
         <div class="input-group mb-3">
             <input type="number" id="skip_types" class="form-control" placeholder="Skip (default 0)">
@@ -32,7 +32,7 @@
 
     <!--        Add New User Type-->
 
-    <button type="button" class="collapsible">Add New User Type</button>
+    <button type="button" class="collapsible"><div class="expand_sign">+</div><div>Add New User Type</div></button>
     <div class="content">
         <form id="user-type-form" class="mb-3">
             <div class="mb-3">
@@ -45,7 +45,7 @@
 
     <!--        Fetch Specific User-->
 
-    <button type="button" class="collapsible">Fetch Specific User</button>
+    <button type="button" class="collapsible"><div class="expand_sign">+</div><div>Fetch Specific User</div></button>
     <div class="content">
         <!-- Section for Fetching by User ID -->
         <div class="input-group mb-3">
@@ -63,7 +63,7 @@
 
     <!--        Fetch All Users-->
 
-    <button type="button" class="collapsible">Fetch All Users</button>
+    <button type="button" class="collapsible"><div class="expand_sign">+</div><div>Fetch All Users</div></button>
     <div class="content">
         <!-- Section for Fetching List of Users -->
         <div class="input-group mb-3">
@@ -76,7 +76,7 @@
 
     <!--        Add New User-->
 
-    <button type="button" class="collapsible">Add New User</button>
+    <button type="button" class="collapsible"><div class="expand_sign">+</div><div>Add New User</div></button>
     <div class="content">
         <form id="user-form" class="mb-3">
             <div class="mb-3">
@@ -119,7 +119,7 @@
 
     <!--        Fetch All Courses-->
 
-    <button type="button" class="collapsible">Fetch All Courses</button>
+    <button type="button" class="collapsible"><div class="expand_sign">+</div><div>Fetch All Courses</div></button>
     <div class="content">
         <!-- Section for Fetching List of Users -->
         <div class="input-group mb-3">
@@ -132,15 +132,15 @@
 
     <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>
 
-    <!--    Enrollment Management-->
+    <!--    Add New Enrollment-->
 
-    <button type="button" class="collapsible">Add New Enrollment</button>
+    <button type="button" class="collapsible"><div class="expand_sign">+</div><div>Add New Enrollment</div></button>
     <div class="content">
         <form id="enrollmentForm" class="mb-4">
             <input type="hidden" id="enrollmentId" name="enrollment_id">
             <div class="form-group">
                 <label for="enrolledDate">Enrolled Date:</label>
-                <input type="datetime-local" id="enrolledDate" name="enrolled_date" class="form-control" required>
+                <input type="date" id="enrolledDate" name="enrolled_date" class="form-control" required>
             </div>
             <div class="form-group">
                 <label for="endDateEnrollment">End Date:</label>
@@ -166,7 +166,7 @@
 
     <!--    Fetch All Enrollments-->
 
-    <button type="button" class="collapsible">Fetch All Enrollments</button>
+    <button type="button" class="collapsible"><div class="expand_sign">+</div><div>Fetch All Enrollments</div></button>
     <div class="content">
 
         <table id="enrollmentTable" class="table table-dark table-striped">
