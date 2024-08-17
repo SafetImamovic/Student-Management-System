@@ -8,55 +8,77 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-dark text-light">
-    <div class="container">
-        <button type="button" class="collapsible">Fetch All User Types</button>
-        <div class="content">
-            <div class="input-group mb-3">
-                <input type="number" id="skip_types" class="form-control" placeholder="Skip (default 0)">
-                <input type="number" id="limit_types" class="form-control" placeholder="Limit (default 10)">
-                <button class="btn btn-info" onclick="fetchUserTypesList()">Fetch User Types List</button>
-            </div>
-            <div id="user-types-list" class="user-list"></div>
+<div class="container">
+
+    <button class="btn btn-danger" onclick="truncate()">TRUNCATE TABLES</button>
+    <button class="btn btn-warning" onclick="re_seed()">RE-SEED TABLES</button>
+    <button class="btn btn-secondary" id="user_types_count"></button>
+    <button class="btn btn-secondary" id="users_count"></button>
+    <button class="btn btn-secondary" id="courses_count"></button>
+    <button class="btn btn-secondary" id="enrollments_count"></button>
+    <button class="btn btn-info" onclick="updateCounts()">Update Table Counts</button>
+
+    <!--        Fetch All User Types-->
+
+    <button type="button" class="collapsible">Fetch All User Types</button>
+    <div class="content">
+        <div class="input-group mb-3">
+            <input type="number" id="skip_types" class="form-control" placeholder="Skip (default 0)">
+            <input type="number" id="limit_types" class="form-control" placeholder="Limit (default 10)">
+            <button class="btn btn-info" onclick="fetchUserTypesList()">Fetch User Types List</button>
         </div>
-        <button type="button" class="collapsible">Add New User Type</button>
-        <div class="content">
-            <form id="user-type-form" class="mb-3">
-                <div class="mb-3">
-                    <label for="user-type-name" class="form-label">User Type Name</label>
-                    <input type="text" id="user-type-name" class="form-control" placeholder="User Type Name" required>
-                </div>
-                <button type="button" class="btn btn-success" onclick="createUserType()">Add User Type</button>
-            </form>
-        </div>
-        <button type="button" class="collapsible">Fetch Specific User</button>
-        <div class="content">
-            <!-- Section for Fetching by User ID -->
-            <div class="input-group mb-3">
-                <input type="text" id="user-id" class="form-control" placeholder="Enter User ID">
-                <button class="btn btn-primary" onclick="fetchUserInfoById()">Fetch User Info by ID</button>
+        <div id="user-types-list" class="user-list"></div>
+    </div>
+
+    <!--        Add New User Type-->
+
+    <button type="button" class="collapsible">Add New User Type</button>
+    <div class="content">
+        <form id="user-type-form" class="mb-3">
+            <div class="mb-3">
+                <label for="user-type-name" class="form-label">User Type Name</label>
+                <input type="text" id="user-type-name" class="form-control" placeholder="User Type Name" required>
             </div>
-            <!-- Section for Fetching by Email -->
-            <div class="input-group mb-3">
-                <input type="email" id="user-email" class="form-control" placeholder="Enter User Email">
-                <button class="btn btn-secondary" onclick="fetchUserInfoByEmail()">Fetch User Info by Email</button>
-            </div>
-            <!-- User Information Form -->
-            <div id="user-info" class="user-info"></div>
+            <button type="button" class="btn btn-success" onclick="createUserType()">Add User Type</button>
+        </form>
+    </div>
+
+    <!--        Fetch Specific User-->
+
+    <button type="button" class="collapsible">Fetch Specific User</button>
+    <div class="content">
+        <!-- Section for Fetching by User ID -->
+        <div class="input-group mb-3">
+            <input type="text" id="user-id" class="form-control" placeholder="Enter User ID">
+            <button class="btn btn-primary" onclick="fetchUserInfoById()">Fetch User Info by ID</button>
         </div>
-        <button type="button" class="collapsible">Fetch All Users</button>
-        <div class="content">
-            <!-- Section for Fetching List of Users -->
-            <div class="input-group mb-3">
-                <input type="number" id="skip" class="form-control" placeholder="Skip (default 0)">
-                <input type="number" id="limit" class="form-control" placeholder="Limit (default 10)">
-                <button class="btn btn-info" onclick="fetchUserList()">Fetch User List</button>
-            </div>
-            <div id="user-list" class="user-list"></div>
+        <!-- Section for Fetching by Email -->
+        <div class="input-group mb-3">
+            <input type="email" id="user-email" class="form-control" placeholder="Enter User Email">
+            <button class="btn btn-secondary" onclick="fetchUserInfoByEmail()">Fetch User Info by Email</button>
         </div>
-        <!-- User Creation Form -->
-        <button type="button" class="collapsible">Add New User</button>
-            <div class="content">
-            <form id="user-form" class="mb-3">
+        <!-- User Information Form -->
+        <div id="user-info" class="user-info"></div>
+    </div>
+
+    <!--        Fetch All Users-->
+
+    <button type="button" class="collapsible">Fetch All Users</button>
+    <div class="content">
+        <!-- Section for Fetching List of Users -->
+        <div class="input-group mb-3">
+            <input type="number" id="skip" class="form-control" placeholder="Skip (default 0)">
+            <input type="number" id="limit" class="form-control" placeholder="Limit (default 10)">
+            <button class="btn btn-info" onclick="fetchUserList()">Fetch User List</button>
+        </div>
+        <div id="user-list" class="user-list"></div>
+    </div>
+
+    <!--        Add New User-->
+
+    <button type="button" class="collapsible">Add New User</button>
+    <div class="content">
+        <form id="user-form" class="mb-3">
             <div class="mb-3">
                 <label for="first-name" class="form-label">First Name</label>
                 <input type="text" id="first-name" class="form-control" placeholder="First Name">
@@ -93,12 +115,78 @@
             </div>
             <button type="button" class="btn btn-success" onclick="createUser()">Add User</button>
         </form>
+    </div>
+
+    <!--        Fetch All Courses-->
+
+    <button type="button" class="collapsible">Fetch All Courses</button>
+    <div class="content">
+        <!-- Section for Fetching List of Users -->
+        <div class="input-group mb-3">
+            <input type="number" id="skip_course" class="form-control" placeholder="Skip (default 0)">
+            <input type="number" id="limit_course" class="form-control" placeholder="Limit (default 10)">
+            <button class="btn btn-info" onclick="fetchCourseList()">Fetch Course List</button>
         </div>
+        <div id="course-list" class="course-list"></div>
     </div>
 
     <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <!--    Enrollment Management-->
+
+    <button type="button" class="collapsible">Add New Enrollment</button>
+    <div class="content">
+        <h2>Enrollments</h2>
+        <form id="enrollmentForm" class="mb-4">
+            <input type="hidden" id="enrollmentId" name="enrollment_id">
+            <div class="form-group">
+                <label for="enrolledDate">Enrolled Date:</label>
+                <input type="datetime-local" id="enrolledDate" name="enrolled_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="endDateEnrollment">End Date:</label>
+                <input type="date" id="endDateEnrollment" name="end_date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="associativeData">Associative Data:</label>
+                <textarea id="associativeData" name="associative_data" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="userIdEnrollment">User:</label>
+                <select id="userIdEnrollment" name="user_id" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+                <label for="courseIdEnrollment">Course:</label>
+                <select id="courseIdEnrollment" name="course_id" class="form-control" required></select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <button class="btn btn-info" onclick="update()">Update Users & Courses</button>
+    </div>
+
+    <!--    Fetch All Enrollments-->
+
+    <button type="button" class="collapsible">Fetch All Enrollments</button>
+    <div class="content">
+
+        <table id="enrollmentTable" class="table table-dark table-striped">
+            <thead>
+            <tr>
+                <th>Enrollment ID</th>
+                <th>Enrolled Date</th>
+                <th>End Date</th>
+                <th>User ID</th>
+                <th>Course ID</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button class="btn btn-info" onclick="fetchEnrollments()">Update Enrollments</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

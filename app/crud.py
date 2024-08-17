@@ -209,3 +209,56 @@ def delete_course(db: Session, course_id: int) -> models.Course:
     db.delete(db_course)
     db.commit()
     return db_course
+
+
+# -------------------------------------------------------------------------------------------------
+# Enrollment specific CRUD operations, # of functions = 5
+# -------------------------------------------------------------------------------------------------
+
+def get_enrollment_by_id(db: Session, enrollment_id: int) -> models.Enrollment:
+    """
+    This function queries the database for the Enrollment with the given enrollment_id
+    :param db: The database session
+    :param enrollment_id: Enrollment ID
+    :return: Enrollment with the given enrollment_id
+    """
+    return db.query(models.Enrollment).filter(models.Enrollment.enrollment_id == enrollment_id).first()
+
+
+def get_enrollments(db: Session, skip: int = 0, limit: int = 10) -> list[models.Enrollment]:
+    """
+    This function queries the database for the Enrollment with the given skip and limit boundaries
+    and returns a list of Enrollments
+    :param db: The database session
+    :param skip: The starting index of the list, 0 by default
+    :param limit: The ending index (skip + limit), 10 by default
+    :return: List[models.Enrollment]:
+    """
+    return db.query(models.Enrollment).offset(skip).limit(limit).all()
+
+
+def create_enrollment(db: Session, enrollment: schemas.EnrollmentCreate) -> models.Enrollment:
+    """
+    This function creates a new Enrollment based on the given enrollment pydantic model
+    :param db: The database session
+    :param enrollment: The given enrollment pydantic model
+    :return: Created Enrollment instance
+    """
+    db_enrollment = models.Enrollment(**enrollment.dict())
+    db.add(db_enrollment)
+    db.commit()
+    db.refresh(db_enrollment)
+    return db_enrollment
+
+
+def delete_enrollment(db: Session, enrollment_id: int) -> models.Enrollment:
+    """
+    This function deletes a Enrollment based on the given enrollment_id
+    :param db: The database session
+    :param enrollment_id: The given enrollment_id
+    :return: The deleted Enrollment instance
+    """
+    db_enrollment = db.query(models.Enrollment).filter(models.Enrollment.enrollment_id == enrollment_id).first()
+    db.delete(db_enrollment)
+    db.commit()
+    return db_enrollment
