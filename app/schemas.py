@@ -1,6 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, date
 
 
 class UserTypeBase(BaseModel):
@@ -56,8 +56,8 @@ class User(UserBase):
 class CourseBase(BaseModel):
     name: str
     description: Optional[str] = None
-    start_date: datetime
-    end_date: datetime
+    start_date: date
+    end_date: date
     is_active: bool = True
 
 
@@ -79,8 +79,8 @@ class Course(CourseBase):
 
 
 class EnrollmentBase(BaseModel):
-    enrolled_date: datetime
-    end_date: Optional[datetime] = None
+    enrolled_date: date
+    end_date: Optional[date] = None
     associative_data: Optional[str] = None
     user_id: int
     course_id: int

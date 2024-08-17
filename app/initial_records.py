@@ -36,15 +36,15 @@ default_courses = [
     {
         "name": "Python 101",
         "description": "Basic Python",
-        "start_date": "2024-08-17T15:02:49.434Z",
-        "end_date": "2024-08-17T15:02:49.434Z",
+        "start_date": "2024-08-17",
+        "end_date": "2024-08-17",
         "is_active": True
     },
     {
         "name": "Alembic 101",
         "description": "World Database Migration",
-        "start_date": "2024-08-17T15:02:49.434Z",
-        "end_date": "2024-08-17T15:02:49.434Z",
+        "start_date": "2024-08-17",
+        "end_date": "2024-08-17",
         "is_active": True
     },
 ]
@@ -52,22 +52,22 @@ default_courses = [
 
 default_enrollments = [
     {
-      "enrolled_date": "2024-08-17T18:29:49.298Z",
-      "end_date": "2024-08-17T18:29:49.298Z",
+      "enrolled_date": "2024-08-17",
+      "end_date": "2024-08-17",
       "associative_data": "Associative Data Relative To John and Python 101",
       "user_id": 2,
       "course_id": 1
     },
     {
-      "enrolled_date": "2024-08-17T18:29:49.298Z",
-      "end_date": "2024-08-17T18:29:49.298Z",
+      "enrolled_date": "2024-08-17",
+      "end_date": "2024-08-17",
       "associative_data": "Associative Data Relative To John and Alembic 101",
       "user_id": 2,
       "course_id": 2
     },
     {
-      "enrolled_date": "2024-08-17T18:29:49.298Z",
-      "end_date": "2024-08-17T18:29:49.298Z",
+      "enrolled_date": "2024-08-17",
+      "end_date": "2024-08-17",
       "associative_data": "Associative Data Relative To Jane and Alembic 101",
       "user_id": 3,
       "course_id": 1

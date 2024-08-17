@@ -1,8 +1,8 @@
-"""empty message
+"""Update columns to use date instead of datetime for enrollments
 
-Revision ID: ed68c29d5f13
+Revision ID: 68ad10457de2
 Revises: 
-Create Date: 2024-08-16 21:07:19.028643
+Create Date: 2024-08-17 23:20:17.174588
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'ed68c29d5f13'
+revision: str = '68ad10457de2'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

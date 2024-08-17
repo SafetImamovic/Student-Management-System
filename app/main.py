@@ -343,7 +343,7 @@ def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return user_types
 
 
-@app.post('/user_types/', response_model=schemas.UserType, tags=["User Types"])
+@app.post('/user_types/', response_model=schemas.UserTypeCreate, tags=["User Types"])
 def create_user_type(user_type: schemas.UserTypeCreate, db: Session = Depends(get_db)):
     """
     This path operation creates a new user type using the crud.create_user_type() function
@@ -351,11 +351,16 @@ def create_user_type(user_type: schemas.UserTypeCreate, db: Session = Depends(ge
     :param db: The database session to use
     :return: The created user type
     """
+    if (len(user_type.name) < 3):
+        raise HTTPException(status_code=400, detail="User Type name must be at least 3 characters long")
+
+
     db_user_type = crud.get_user_type_by_name(db, name=user_type.name)
     if db_user_type:
         raise HTTPException(status_code=400, detail="User Type already exists")
 
-    create_db_user_type = crud.create_user_type(db=db, user=user_type)
+
+    create_db_user_type = crud.create_user_type(db=db, user_type=user_type)
 
     return create_db_user_type
 

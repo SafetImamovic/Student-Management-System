@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Date, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -58,8 +58,8 @@ class Enrollment(Base):
     __tablename__ = 'enrollments'
 
     enrollment_id = Column(Integer, primary_key=True, autoincrement=True)
-    enrolled_date = Column(DateTime, default=datetime.utcnow)
-    end_date = Column(DateTime, nullable=True)
+    enrolled_date = Column(Date, default=date)
+    end_date = Column(Date, nullable=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     associative_data = Column(Text, nullable=True)
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)

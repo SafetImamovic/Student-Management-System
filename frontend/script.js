@@ -223,12 +223,15 @@ function createUserType() {
         name: document.getElementById('user-type-name').value
     };
 
+    console.log(JSON.stringify(formData))
+
     fetch(url_address + routes["user_types/"], {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
+
     })
     .then(response => {
         if (!response.ok) {
