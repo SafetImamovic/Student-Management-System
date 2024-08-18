@@ -6,7 +6,6 @@ from . import crud, models, schemas
 from .database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 
-
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -193,7 +192,7 @@ def re_seed_database(db: Session = Depends(get_db)):
     seed_user_types(db)
     seed_users(db)
     seed_courses(db)
-    seed_enrollments(db)
+    # seed_enrollments(db)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -354,11 +353,9 @@ def create_user_type(user_type: schemas.UserTypeCreate, db: Session = Depends(ge
     if (len(user_type.name) < 3):
         raise HTTPException(status_code=400, detail="User Type name must be at least 3 characters long")
 
-
     db_user_type = crud.get_user_type_by_name(db, name=user_type.name)
     if db_user_type:
         raise HTTPException(status_code=400, detail="User Type already exists")
-
 
     create_db_user_type = crud.create_user_type(db=db, user_type=user_type)
 
@@ -485,6 +482,23 @@ def get_enrollments_count(db: Session = Depends(get_db)):
     return db.query(models.Enrollment).count()
 
 
+@app.get('/enrollments/{user_id}/{course_id}', response_model=schemas.Enrollment, tags=["Enrollments"])
+def get_enrollment_by_ids(user_id: int, course_id: int, db: Session = Depends(get_db)):
+    """
+    This path operation returns an Enrollment based on the user_id and course_id composite key
+    :param user_id: The user id
+    :param course_id: The course id
+    :param db: The database session to use
+    :return: The Enrollment instance
+    """
+    db_enrollment = crud.get_enrollment_by_ids(db, user_id=user_id, course_id=course_id)
+
+    if not db_enrollment:
+        raise HTTPException(status_code=404, detail="Enrollment not found")
+
+    return db_enrollment
+
+
 @app.get('/enrollments/', response_model=list[schemas.Enrollment], tags=["Enrollments"])
 def get_enrollments(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """
@@ -506,7 +520,11 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
     :param db: The database session to use
     :return: The Enrollment instance
     """
+    db_exists = crud.get_enrollment_by_ids(db, user_id=enrollment.user_id, course_id=enrollment.course_id)
+
+    if db_exists:
+        raise HTTPException(status_code=400, detail="Enrollment already exists")
+
     db_enrollment = crud.create_enrollment(db, enrollment)
+
     return db_enrollment
-
-

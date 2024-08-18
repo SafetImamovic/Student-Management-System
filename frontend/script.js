@@ -21,14 +21,12 @@ routes = {
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // TRUNCATES every table in the database
 // -------------------------------------------------------------------------------------------------
-function truncate()
-{
+function truncate() {
     if (confirm('Are you sure you want to TRUNCATE every table in the database?')) {
-        fetch(url_address + routes["truncate_db/"], { method: 'DELETE' })
+        fetch(url_address + routes["truncate_db/"], {method: 'DELETE'})
             .then(response => {
                 if (response.ok) {
                     showToast('Tables TRUNCATED successfully.');
@@ -48,7 +46,6 @@ function truncate()
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // RE-SEEDS some tables in the database
 // -------------------------------------------------------------------------------------------------
@@ -59,25 +56,24 @@ function re_seed() {
             'Content-Type': 'application/json'
         },
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.detail || 'Unknown error');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        showToast('Database table re-seeded successfully.');
-        document.getElementById('user-type-form').reset(); // Clear the form
-    })
-    .catch(error => {
-        showToast(`Error reseeding database tables: ${error.message}`);
-    });
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.detail || 'Unknown error');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            showToast('Database table re-seeded successfully.');
+            document.getElementById('user-type-form').reset(); // Clear the form
+        })
+        .catch(error => {
+            showToast(`Error reseeding database tables: ${error.message}`);
+        });
 
     updateCounts();
 }
-
 
 
 // -------------------------------------------------------------------------------------------------
@@ -185,8 +181,7 @@ function updateCounts() {
 // -------------------------------------------------------------------------------------------------
 // Fetch All User Types
 // -------------------------------------------------------------------------------------------------
-function fetchUserTypesList()
-{
+function fetchUserTypesList() {
     const skip = document.getElementById('skip_types').value || 0;
     const limit = document.getElementById('limit_types').value || 10;
     const userListDiv = document.getElementById('user-types-list');
@@ -214,7 +209,6 @@ function fetchUserTypesList()
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // Add New User Type
 // -------------------------------------------------------------------------------------------------
@@ -233,23 +227,22 @@ function createUserType() {
         body: JSON.stringify(formData)
 
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.detail || 'Unknown error');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        showToast('User Type created successfully.');
-        document.getElementById('user-type-form').reset(); // Clear the form
-    })
-    .catch(error => {
-        showToast(`Error creating user type: ${error.message}`);
-    });
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.detail || 'Unknown error');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            showToast('User Type created successfully.');
+            document.getElementById('user-type-form').reset(); // Clear the form
+        })
+        .catch(error => {
+            showToast(`Error creating user type: ${error.message}`);
+        });
 }
-
 
 
 // -------------------------------------------------------------------------------------------------
@@ -308,7 +301,6 @@ function fetchUserInfoByEmail() {
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // Fetch All Users
 // -------------------------------------------------------------------------------------------------
@@ -317,7 +309,7 @@ function fetchUserList() {
     const limit = document.getElementById('limit').value || 10;
     const userListDiv = document.getElementById('user-list');
 
-    fetch( url_address + routes["users/"] +`?skip=${encodeURIComponent(skip)}&limit=${encodeURIComponent(limit)}`)
+    fetch(url_address + routes["users/"] + `?skip=${encodeURIComponent(skip)}&limit=${encodeURIComponent(limit)}`)
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
@@ -338,7 +330,6 @@ function fetchUserList() {
             userListDiv.innerHTML = `<div class="alert alert-danger">Error fetching user list: ${error.message}</div>`;
         });
 }
-
 
 
 // -------------------------------------------------------------------------------------------------
@@ -381,7 +372,6 @@ function createUser() {
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // Fetch All Courses
 // -------------------------------------------------------------------------------------------------
@@ -390,7 +380,7 @@ function fetchCourseList() {
     const limit = document.getElementById('limit_course').value || 10;
     const userListDiv = document.getElementById('course-list');
 
-    fetch( url_address + routes["courses/"] +`?skip=${encodeURIComponent(skip)}&limit=${encodeURIComponent(limit)}`)
+    fetch(url_address + routes["courses/"] + `?skip=${encodeURIComponent(skip)}&limit=${encodeURIComponent(limit)}`)
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
@@ -411,8 +401,6 @@ function fetchCourseList() {
             userListDiv.innerHTML = `<div class="alert alert-danger">Error fetching course list: ${error.message}</div>`;
         });
 }
-
-
 
 
 // -------------------------------------------------------------------------------------------------
@@ -442,10 +430,9 @@ function fetchEnrollments() {
         });
 }
 
-function deleteEnrollment(id)
-{
+function deleteEnrollment(id) {
     if (confirm('Are you sure you want to delete this enrollment?')) {
-        fetch(url_address + routes["delete_enrollment/"] + `${id}`, { method: 'DELETE' })
+        fetch(url_address + routes["delete_enrollment/"] + `${id}`, {method: 'DELETE'})
             .then(response => {
                 if (response.ok) {
                     showToast('Enrollment deleted successfully.');
@@ -474,11 +461,18 @@ enrollmentForm.addEventListener('submit', event => {
             'Content-Type': 'application/json'
         },
         body: jsonData
-    }).then(response => response.json())
-      .then(() => {
-          enrollmentForm.reset();
-          fetchEnrollments();
-      });
+    }).then(response => {
+        if (response.ok) {
+            showToast('Enrollment added successfully.');
+            fetchEnrollments();
+        } else {
+            return response.json().then(errorData => {
+                throw new Error(errorData.detail || 'Unknown error');
+            });
+        }
+    }).catch(error => {
+        showToast(`Error creating enrollment: ${error.message}`);
+    });
 });
 
 const userIdSelect = document.getElementById('userIdEnrollment');
@@ -513,7 +507,6 @@ function fetchCourses() {
             });
         });
 }
-
 
 
 // -------------------------------------------------------------------------------------------------
@@ -570,12 +563,10 @@ function fillForm(userId, firstName, lastName, username, email, age, isActive, u
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // Generates the HTML for User Type info
 // -------------------------------------------------------------------------------------------------
-function generateUserTypesHTML(type)
-{
+function generateUserTypesHTML(type) {
     return `
         <div class="card mb-3">
             <div class="card-body">
@@ -591,18 +582,16 @@ function generateUserTypesHTML(type)
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // Generates the HTML for Course info
 // -------------------------------------------------------------------------------------------------
-function generateCourseSummaryHTML(course)
-{
+function generateCourseSummaryHTML(course) {
     return `
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">${course.name}</h5>
                 <p class="card-text"><strong>Course ID:</strong> ${course.course_id} <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('${course.course_id}')">Copy</button></p>
-                <p class="card-text"><strong>Course ID:</strong> ${course.description} </p>
+                <p class="card-text"><strong>Description:</strong> ${course.description} </p>
                 <p class="card-text"><strong>Start Date:</strong> ${new Date(course.start_date).toLocaleString()}</p>
                 <p class="card-text"><strong>End Date:</strong> ${new Date(course.end_date).toLocaleString()}</p>
                 <p class="card-text"><strong>Created At:</strong> ${new Date(course.created_at).toLocaleString()}</p>
@@ -620,7 +609,7 @@ function generateCourseSummaryHTML(course)
 // -------------------------------------------------------------------------------------------------
 function deleteUser(userId) {
     if (confirm('Are you sure you want to delete this user?')) {
-        fetch(url_address + routes["delete_users/"] + `${userId}`, { method: 'DELETE' })
+        fetch(url_address + routes["delete_users/"] + `${userId}`, {method: 'DELETE'})
             .then(response => {
                 if (response.ok) {
                     showToast('User deleted successfully.');
@@ -638,14 +627,12 @@ function deleteUser(userId) {
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // Deletes the User Type
 // -------------------------------------------------------------------------------------------------
-function deleteUserType(user_type_id)
-{
+function deleteUserType(user_type_id) {
     if (confirm('Are you sure you want to delete this user?')) {
-        fetch(url_address + routes["delete_user_types/"] + `${user_type_id}`, { method: 'DELETE' })
+        fetch(url_address + routes["delete_user_types/"] + `${user_type_id}`, {method: 'DELETE'})
             .then(response => {
                 if (response.ok) {
                     showToast('User deleted successfully.');
@@ -661,7 +648,6 @@ function deleteUserType(user_type_id)
             });
     }
 }
-
 
 
 // -------------------------------------------------------------------------------------------------
@@ -689,7 +675,6 @@ function showToast(message) {
 }
 
 
-
 // -------------------------------------------------------------------------------------------------
 // Code that manages the collapsible elements
 // -------------------------------------------------------------------------------------------------
@@ -697,17 +682,16 @@ let coll = document.getElementsByClassName("collapsible");
 let i;
 
 for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    let content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  });
+    coll[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        let content = this.nextElementSibling;
+        if (content.style.display === "block") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "block";
+        }
+    });
 }
-
 
 
 // -------------------------------------------------------------------------------------------------
@@ -732,7 +716,7 @@ function populateUserTypes() {
 }
 
 // Call populateUserTypes on page load
-window.onload = function() {
+window.onload = function () {
     populateUserTypes();
 };
 

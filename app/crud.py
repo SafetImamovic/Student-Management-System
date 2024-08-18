@@ -16,7 +16,6 @@ def get_user_by_id(db: Session, user_id: int) -> models.User:
     return db.query(models.User).filter(models.User.user_id == user_id).first()
 
 
-
 def get_user_by_email(db: Session, email: str) -> models.User:
     """
     This function queries the database for the User with the given email
@@ -214,6 +213,19 @@ def delete_course(db: Session, course_id: int) -> models.Course:
 # -------------------------------------------------------------------------------------------------
 # Enrollment specific CRUD operations, # of functions = 4
 # -------------------------------------------------------------------------------------------------
+
+def get_enrollment_by_ids(db: Session, user_id: int, course_id: int) -> models.Enrollment:
+    """
+    This function returns the Enrollment based on the given user_id and course_id composite key
+    :param user_id: The user id
+    :param course_id: The given course_id
+    :return: Enrollment based on the given user_id and course_id composite key
+    """
+    db_enrollment = db.query(models.Enrollment).filter(models.Enrollment.user_id == user_id,
+                                                       models.Enrollment.course_id == course_id).first()
+
+    return db_enrollment
+
 
 def get_enrollments(db: Session, skip: int = 0, limit: int = 10) -> list[models.Enrollment]:
     """

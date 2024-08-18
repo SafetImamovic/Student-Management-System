@@ -62,7 +62,7 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 cd $scriptDir
 
 Write-Output "Running docker-compose up..."
-docker-compose up -d
+docker-compose up --build -d
 
 $containers = @("student-management-system-db-server", "student-management-system-api")
 

@@ -62,7 +62,7 @@ if [[ "$remove_images" == true ]]; then
     echo "Removing student-management-system-api Image..."
     # List the images used by the current docker-compose setup
 
-    images="student-management-system-api"
+    images="student-management-system-api student-management-system-frontend"
 
     if [[ -n "$images" ]]; then
         echo ""
