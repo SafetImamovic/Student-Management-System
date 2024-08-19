@@ -21,6 +21,7 @@
             <toc-element topic="2-SQLAlchemy-Models.md"/>
             <toc-element topic="3-Pydantic-Models.md"/>
             <toc-element topic="4-CRUD.md"/>
+            <toc-element topic="5-Path-Operations.md"/>
             <toc-element topic="5-Simple-Frontend.md"/>
             <toc-element topic="6-Setting-Up-UserType-Enum.md"/>
         </toc-element>

@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, validator, field_validator, FieldValidationInfo
 from datetime import datetime, date
 
 
@@ -60,12 +60,19 @@ class CourseBase(BaseModel):
     end_date: date
     is_active: bool = True
 
-    @validator('end_date')
-    def validate_date_range(cls, end_date, values):
-        start_date = values.get('start_date')
+    @field_validator('end_date')
+    def validate_date_range(cls, end_date, info: FieldValidationInfo):
+        start_date = info.data.get('start_date')
         if start_date and end_date < start_date:
             raise ValueError('End date must be later than the start date')
         return end_date
+
+    # @validator('end_date')
+    # def validate_date_range(cls, end_date, values):
+    #     start_date = values.get('start_date')
+    #     if start_date and end_date < start_date:
+    #         raise ValueError('End date must be later than the start date')
+    #     return end_date
 
 
 class CourseCreate(CourseBase):
@@ -94,12 +101,19 @@ class EnrollmentBase(BaseModel):
     user_id: int
     course_id: int
 
-    @validator('end_date')
-    def validate_end_date(cls, end_date, values):
-        enrolled_date = values.get('enrolled_date')
-        if enrolled_date and end_date and end_date < enrolled_date:
+    @field_validator('end_date')
+    def validate_date_range(cls, end_date: date, info: FieldValidationInfo) -> date:
+        enrolled_date = info.data.get('enrolled_date')
+        if end_date < enrolled_date:
             raise ValueError('End date must be later than the enrolled date')
         return end_date
+
+    # @validator('end_date')
+    # def validate_end_date(cls, end_date, values):
+    #     enrolled_date = values.get('enrolled_date')
+    #     if end_date < enrolled_date:
+    #         raise ValueError('End date must be later than the enrolled date')
+    #     return end_date
 
 
 class EnrollmentCreate(EnrollmentBase):

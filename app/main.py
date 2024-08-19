@@ -5,6 +5,8 @@ from .initial_records import default_users, default_enrollments, default_courses
 from . import crud, models, schemas
 from .database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
+from enum import Enum
+from fastapi.responses import JSONResponse
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -126,19 +128,24 @@ def seed_courses(db: Session):
         db.commit()
 
 
-# def seed_enrollments(db: Session):
-#     """
-#     This function seeds the enrollments table with some initial values
-#     :param db:
-#     :return:
-#     """
-#     if db.query(models.Enrollment).count() == 0:
-#         reset_auto_increment(db, 'enrollments', 'enrollment_id')
-#
-#         for enrollment in default_enrollments:
-#             db.add(models.Enrollment(**enrollment))
-#         db.commit()
+def seed_enrollments(db: Session):
+    """
+    This function seeds the enrollments table with some initial values
+    :param db:
+    :return:
+    """
+    if db.query(models.Enrollment).count() == 0:
 
+        for enrollment in default_enrollments:
+            db.add(models.Enrollment(**enrollment))
+        db.commit()
+
+
+def seed(db: Session):
+    seed_user_types(db)
+    seed_users(db)
+    seed_courses(db)
+    seed_enrollments(db)
 
 # -------------------------------------------------------------------------------------------------
 # App startup specific path operation
@@ -151,11 +158,42 @@ def on_startup():
     :return:
     """
     db = SessionLocal()
-    seed_user_types(db)
-    seed_users(db)
-    seed_courses(db)
-    # seed_enrollments(db)
+    seed(db)
     db.close()
+
+
+# -------------------------------------------------------------------------------------------------
+# Utility functions and Enums
+# -------------------------------------------------------------------------------------------------
+
+class ErrorType(str, Enum):
+    VALUE_ERROR = "value_error"
+    TYPE_ERROR = "type_error"
+
+
+class Location(str, Enum):
+    BODY = "body"
+    QUERY = "query"
+    PATH = "path"
+
+
+def pydantic_error_response(errors: list[dict]) -> JSONResponse:
+    """Utility function to create a Pydantic-style error response with accumulated errors"""
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": errors
+        }
+    )
+
+
+def add_error(errors: list[dict], loc: list[Location | str], msg: str, error_type: ErrorType = ErrorType.VALUE_ERROR):
+    """Utility function to add an error to the errors list"""
+    errors.append({
+        "loc": loc,
+        "msg": msg,
+        "type": error_type.value
+    })
 
 
 # -------------------------------------------------------------------------------------------------
@@ -189,10 +227,7 @@ def re_seed_database(db: Session = Depends(get_db)):
     :param db: The database to re-seed
     :return: The re-seeded database
     """
-    seed_user_types(db)
-    seed_users(db)
-    seed_courses(db)
-    # seed_enrollments(db)
+    seed(db)
 
 
 # -------------------------------------------------------------------------------------------------
@@ -253,17 +288,30 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 @app.post("/users/", response_model=schemas.User, tags=["Users"])
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     """
-    This path operation creates a new user using the crud.create_user() function
+    This path operation creates a new user using the crud.create_user() function.
     :param user: schemas.UserCreate
-    :param db: The database session to use
-    :return: Created User instance
+    :param db: The database session to use.
+    :return: Created User instance.
     """
+    errors = []
+
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        add_error(
+            errors=errors,
+            loc=[Location.BODY, "email"],
+            msg="Email already registered"
+        )
 
     if crud.get_user_type_by_id(db, user.user_type_id) is None:
-        raise HTTPException(status_code=404, detail="User Type doesn't exist")
+        add_error(
+            errors=errors,
+            loc=[Location.BODY, "user_type_id"],
+            msg="User Type doesn't exist"
+        )
+
+    if errors:
+        return pydantic_error_response(errors)
 
     return crud.create_user(db=db, user=user)
 
@@ -345,20 +393,28 @@ def get_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 @app.post('/user_types/', response_model=schemas.UserTypeCreate, tags=["User Types"])
 def create_user_type(user_type: schemas.UserTypeCreate, db: Session = Depends(get_db)):
     """
-    This path operation creates a new user type using the crud.create_user_type() function
-    :param user_type: The schemas.UserType instance
-    :param db: The database session to use
-    :return: The created user type
+    This path operation creates a new user type using the crud.create_user_type() function.
+    :param user_type: The schemas.UserTypeCreate instance.
+    :param db: The database session to use.
+    :return: The created user type.
     """
-    if (len(user_type.name) < 3):
-        raise HTTPException(status_code=400, detail="User Type name must be at least 3 characters long")
+    errors = []
 
+    # Check if the user type name already exists
     db_user_type = crud.get_user_type_by_name(db, name=user_type.name)
     if db_user_type:
-        raise HTTPException(status_code=400, detail="User Type already exists")
+        add_error(
+            errors=errors,
+            loc=[Location.BODY, "name"],
+            msg="User Type already exists"
+        )
 
+    # If there are any errors, return them in a Pydantic-style error response
+    if errors:
+        return pydantic_error_response(errors)
+
+    # Create and return the new user type
     create_db_user_type = crud.create_user_type(db=db, user_type=user_type)
-
     return create_db_user_type
 
 
@@ -439,22 +495,23 @@ def read_courses(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 @app.post('/courses/', response_model=schemas.Course, tags=["Courses"])
 def create_course(course: schemas.CourseCreate, db: Session = Depends(get_db)):
     """
-    This path operation creates a new course using the crud.create_course() function
+    This path operation creates a new course using the crud.create_course() function.
     :param course: schemas.CourseCreate
-    :param db: The database session to use
-    :return: Created Course instance
+    :param db: The database session to use.
+    :return: Created Course instance.
     """
-
-    if (len(course.name) < 3):
-        raise HTTPException(status_code=400, detail="Course name must be at least 3 characters long")
+    errors = []
 
     db_course = crud.get_course_by_name(db, name=course.name)
-
     if db_course:
-        raise HTTPException(status_code=400, detail="Course already exists")
+        add_error(
+            errors=errors,
+            loc=[Location.BODY, "name"],
+            msg="Course already exists"
+        )
 
-    if course.start_date > course.end_date:
-        raise HTTPException(status_code=400, detail="Course start date must be older than Course end date")
+    if errors:
+        return pydantic_error_response(errors)
 
     return crud.create_course(db=db, course=course)
 
@@ -528,26 +585,34 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
     :param db: The database session to use
     :return: The Enrollment instance
     """
-    db_exists = crud.get_enrollment_by_ids(db, user_id=enrollment.user_id, course_id=enrollment.course_id)
+    errors = []
 
+    db_exists = crud.get_enrollment_by_ids(db, user_id=enrollment.user_id, course_id=enrollment.course_id)
     if db_exists:
-        raise HTTPException(status_code=400, detail="Enrollment already exists")
+        add_error(
+            errors=errors,
+            loc=[Location.BODY, "user_id", "course_id"],
+            msg="Enrollment already exists"
+        )
 
     db_user = crud.get_user_by_id(db, user_id=enrollment.user_id)
+    if not db_user:
+        add_error(
+            errors=errors,
+            loc=[Location.BODY, "user_id"],
+            msg=f"User not found for User ID: {enrollment.user_id}"
+        )
+
     db_course = crud.get_course_by_id(db, course_id=enrollment.course_id)
+    if not db_course:
+        add_error(
+            errors=errors,
+            loc=[Location.BODY, "course_id"],
+            msg=f"Course not found for Course ID: {enrollment.course_id}"
+        )
 
-    if not db_course and not db_user:
-        raise HTTPException(status_code=404, detail=f"Course and User not found for Course ID: {enrollment.course_id} and User ID: {enrollment.user_id}")
-
-    if not db_user and db_course:
-        raise HTTPException(status_code=404, detail=f"User not found for User ID: {enrollment.user_id}")
-
-    if not db_course and db_user:
-        raise HTTPException(status_code=404, detail=f"Course not found for Course ID: {enrollment.course_id}")
-
-    if enrollment.enrolled_date >= enrollment.end_date:
-        raise HTTPException(status_code=400, detail="Enrollment start date must be older than Enrollment end date")
+    if errors:
+        return pydantic_error_response(errors)
 
     db_enrollment = crud.create_enrollment(db, enrollment)
-
     return db_enrollment

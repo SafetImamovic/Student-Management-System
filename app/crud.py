@@ -51,16 +51,7 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     :return: User
     """
     hashed_password = user.password + "fakehashed"
-    db_user = models.User(
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        username=user.username,
-        age=user.age,
-        is_active=user.is_active,
-        user_type_id=user.user_type_id,
-        hashed_password=hashed_password
-    )
+    db_user = models.User(**user.dict())
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

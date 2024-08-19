@@ -1,190 +1,268 @@
-# 4. CRUD
+# 4. CRUD Operations
 
 We create a `crud.py` file to handle the CRUD operations inside the `app/` directory.
 
 CRUD comes from: **C**reate, **R**ead, **U**pdate, and **D**elete.
 
-### `crud.py`
-```Python
+<code-block lang="python" collapsed-title="crud.py" collapsible="true">
+<![CDATA[
 from sqlalchemy.orm import Session
 from . import models, schemas
 
 
-def get_user_by_id(db: Session, user_id: int):
+# -------------------------------------------------------------------------------------------------
+# User specific CRUD operations, # of functions = 5
+# -------------------------------------------------------------------------------------------------
+def get_user_by_id(db: Session, user_id: int) -> models.User:
+    """
+    This function queries the database for the User with the given user_id
+    and returns the User with the given user_id
+    :param db: The database session
+    :param user_id:
+    :return User:
+    """
     return db.query(models.User).filter(models.User.user_id == user_id).first()
 
 
-def get_user_by_email(db: Session, email: str):
+def get_user_by_email(db: Session, email: str) -> models.User:
+    """
+    This function queries the database for the User with the given email
+    and returns the User with the given email
+    :param db: The database session
+    :param email:
+    :return User:
+    """
     return db.query(models.User).filter(models.User.email == email).first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
+def get_users(db: Session, skip: int = 0, limit: int = 10) -> list[models.User]:
+    """
+    This function queries the database for Users with the given skip and limit boundaries
+    and returns a list of Users
+    :param db: The database session
+    :param skip: Starting index of the list, 0 by default
+    :param limit: Ending index (skip + limit), 10 by default
+    :return List[Type[models.User]]:
+    """
     return db.query(models.User).offset(skip).limit(limit).all()
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+def create_user(db: Session, user: schemas.UserCreate) -> models.User:
+    """
+    This function creates a new User
+
+    It uses a fake hashing 'algorithm', just appends "fakehashed" to the given password.
+
+    TODO: Change the hashing
+    :param db: The database session
+    :param user: schemas.UserCreate
+    :return: User
+    """
     hashed_password = user.password + "fakehashed"
-    db_user = models.User(
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        username=user.username,
-        age=user.age,
-        is_active=user.is_active,
-        user_type_id=1,
-        hashed_password=hashed_password
-    )
+    db_user = models.User(**user.dict())
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
-```
 
-### `main.py`
-<code-block collapsible="true" collapsed-title="main.py" lang="python">
-<![CDATA[
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
-
-from . import crud, models, schemas
-from .database import SessionLocal, engine
-
-models.Base.metadata.create_all(bind=engine)
-
-app = FastAPI()
+def delete_user(db: Session, user_id: int) -> models.User:
+    """
+    This function deletes a User based on the given user_id
+    :param db: The database session
+    :param user_id:
+    :return: deleted User
+    """
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    db.delete(db_user)
+    db.commit()
+    return db_user
 
 
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# -------------------------------------------------------------------------------------------------
+# User Type specific CRUD operations, # of functions = 5
+# -------------------------------------------------------------------------------------------------
+
+def get_user_type_by_id(db: Session, user_type_id: int) -> models.UserType:
+    """
+    This function queries the database for the UserType with the given user_type_id
+    :param db: The database session
+    :param user_type_id: The user_type_id
+    :return: The UserType with the given user_type_id
+    """
+    return db.query(models.UserType).filter(models.UserType.user_type_id == user_type_id).first()
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World!"}
+def get_user_type_by_name(db: Session, name: str) -> models.UserType:
+    """
+    This function queries the database for the UserType with the given name
+    :param db: The database session
+    :param name: The user_type_name
+    :return: The UserType with the given name
+    """
+    return db.query(models.UserType).filter(models.UserType.name == name).first()
 
 
-@app.get("/users/", response_model=list[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
+def get_user_types(db: Session, skip: int = 0, limit: int = 10) -> list[models.UserType]:
+    """
+    This function queries the database for the UserType with the given skip and limit boundaries
+    and returns a list of UserTypes
+    :param db: The database session
+    :param skip: Starting index of the list, 0 by default
+    :param limit: Ending index (skip + limit), 10 by default
+    :return: List[Type[models.UserType]]:
+    """
+    return db.query(models.UserType).offset(skip).limit(limit).all()
 
 
-@app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+def create_user_type(db: Session, user_type: schemas.UserTypeCreate) -> models.UserType:
+    """
+    This function creates a new UserType
+    :param db: The database session
+    :param user_type: schemas.UserTypeCreate
+    :return: The created UserType
+    """
+    db_user_type = models.UserType(
+        **user_type.dict()
+    )
+    db.add(db_user_type)
+    db.commit()
+    db.refresh(db_user_type)
+    return db_user_type
 
 
-@app.get("/users/{email}", response_model=schemas.User)
-def get_user_by_email(email: str, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=email)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user;
+def delete_user_type(db: Session, user_type_id: int) -> models.UserType:
+    """
+    This function deletes a User Type based on the given user_type_id
+    :param db: The database session
+    :param user_type_id: The user_type_id
+    :return: Deleted UserType
+    """
+
+    db_user_type = db.query(models.UserType).filter(models.UserType.user_type_id == user_type_id).first()
+    db.delete(db_user_type)
+    db.commit()
+    return db_user_type
+
+
+# -------------------------------------------------------------------------------------------------
+# Course specific CRUD operations, # of functions = 5
+# -------------------------------------------------------------------------------------------------
+
+def get_course_by_id(db: Session, course_id: int) -> models.Course:
+    """
+    This function queries the database for the Course with the given course_id
+    and returns the Course with the given course_id
+    :param db: The database session
+    :param course_id: Pydantic Course model
+    :return: Course with the given course_id
+    """
+    return db.query(models.Course).filter(models.Course.course_id == course_id).first()
+
+
+def get_course_by_name(db: Session, name: str) -> models.Course:
+    """
+    This function queries the database for the Course with the given name
+    :param db: The database session
+    :param name: Course name
+    :return: Course with given name
+    """
+    return db.query(models.Course).filter(models.Course.name == name).first()
+
+
+def get_courses(db: Session, skip: int = 0, limit: int = 10) -> list[models.Course]:
+    """
+    This function queries the database for the Course with the given skip and limit boundaries
+    and returns a list of Courses
+    :param db: The database session
+    :param skip: The starting index of the list, 0 by default
+    :param limit: The ending index (skip + limit), 10 by default
+    :return: List[Type[models.Course]]:
+    """
+    return db.query(models.Course).offset(skip).limit(limit).all()
+
+
+def create_course(db: Session, course: schemas.CourseCreate) -> models.Course:
+    """
+    This function creates a new Course based on the given course pydantic model
+    :param db: The database session
+    :param course: Pydantic Course model
+    :return: Created Course
+    """
+    db_course = models.Course(**course.dict())
+    db.add(db_course)
+    db.commit()
+    db.refresh(db_course)
+    return db_course
+
+
+def delete_course(db: Session, course_id: int) -> models.Course:
+    """
+    This function deletes a Course based on the given course_id
+    :param db: The database session
+    :param course_id: The given course_id
+    :return: Deleted Course instance
+    """
+    db_course = db.query(models.Course).filter(models.Course.id == course_id).first()
+    db.delete(db_course)
+    db.commit()
+    return db_course
+
+
+# -------------------------------------------------------------------------------------------------
+# Enrollment specific CRUD operations, # of functions = 4
+# -------------------------------------------------------------------------------------------------
+
+def get_enrollment_by_ids(db: Session, user_id: int, course_id: int) -> models.Enrollment:
+    """
+    This function returns the Enrollment based on the given user_id and course_id composite key
+    :param user_id: The user id
+    :param course_id: The given course_id
+    :return: Enrollment based on the given user_id and course_id composite key
+    """
+    db_enrollment = db.query(models.Enrollment).filter(models.Enrollment.user_id == user_id,
+                                                       models.Enrollment.course_id == course_id).first()
+
+    return db_enrollment
+
+
+def get_enrollments(db: Session, skip: int = 0, limit: int = 10) -> list[models.Enrollment]:
+    """
+    This function queries the database for the Enrollment with the given skip and limit boundaries
+    and returns a list of Enrollments
+    :param db: The database session
+    :param skip: The starting index of the list, 0 by default
+    :param limit: The ending index (skip + limit), 10 by default
+    :return: List[models.Enrollment]:
+    """
+    return db.query(models.Enrollment).offset(skip).limit(limit).all()
+
+
+def create_enrollment(db: Session, enrollment: schemas.EnrollmentCreate) -> models.Enrollment:
+    """
+    This function creates a new Enrollment based on the given enrollment pydantic model
+    :param db: The database session
+    :param enrollment: The given enrollment pydantic model
+    :return: Created Enrollment instance
+    """
+    db_enrollment = models.Enrollment(**enrollment.dict())
+    db.add(db_enrollment)
+    db.commit()
+    db.refresh(db_enrollment)
+    return db_enrollment
+
+
+def delete_enrollment(db: Session, enrollment_id: int) -> models.Enrollment:
+    """
+    This function deletes a Enrollment based on the given enrollment_id
+    :param db: The database session
+    :param enrollment_id: The given enrollment_id
+    :return: The deleted Enrollment instance
+    """
+    db_enrollment = db.query(models.Enrollment).filter(models.Enrollment.enrollment_id == enrollment_id).first()
+    db.delete(db_enrollment)
+    db.commit()
+    return db_enrollment
 
 ]]>
 </code-block>
-
-
-
-1. **Creating a Database Session**:
-   ```python
-   db = SessionLocal()
-   ```
-   Here, `SessionLocal` is typically a factory function or class that creates a new database session. This session object is used to interact with the database. `SessionLocal` is often defined using SQLAlchemy's `sessionmaker` function and is used to create a new session instance.
-
-2. **Using a Context Manager**:
-   ```python
-   try:
-       yield db
-   ```
-    - `yield db` is used to return the `db` session object to whatever part of the code is requesting it. In the context of FastAPI, this allows dependency injection to provide the `db` session to route handlers or other functions.
-    - The `yield` statement here is used to produce a value and pause the function, allowing the caller to use the database session (`db`). This pattern is known as a generator function in Python.
-
-3. **Closing the Database Session**:
-   ```python
-   finally:
-       db.close()
-   ```
-    - The `finally` block ensures that the `db.close()` method is called after the `yield` statement, no matter what happens (whether an exception occurs or not). This is important for releasing database resources and closing the connection properly.
-    - `db.close()` is used to close the database session, freeing up any resources associated with it.
-
-Certainly! Here's a detailed breakdown of each route in this FastAPI application:
-
-
-### 1. **Get Users Endpoint**
-
-```python
-@app.get("/users/", response_model=list[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
-```
-
-- **Decorator**: `@app.get("/users/")` specifies that this function will handle HTTP GET requests to the `/users/` URL.
-- **Parameters**:
-    - `skip` (optional): An integer query parameter for pagination, specifying the number of items to skip.
-    - `limit` (optional): An integer query parameter for pagination, specifying the maximum number of items to return.
-    - `db` (injected): A `Session` object provided by the `get_db` dependency. This is used to interact with the database.
-- **Dependency Injection**: `db: Session = Depends(get_db)` means that FastAPI will automatically call `get_db()` to provide a `Session` object to this function.
-- **Function Body**:
-    - `crud.get_users(db, skip=skip, limit=limit)` is a call to a `crud` function that fetches user records from the database with the specified pagination parameters.
-    - The result is returned as a JSON response.
-- **Response Model**: `response_model=list[schemas.User]` specifies that the response will be a list of `User` Pydantic models, ensuring that the data conforms to the schema defined in `schemas.User`.
-
-### 2. **Create User Endpoint**
-
-```python
-@app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
-```
-
-- **Decorator**: `@app.post("/users/")` specifies that this function will handle HTTP POST requests to the `/users/` URL.
-- **Parameters**:
-    - `user`: The request body, which is expected to be a `UserCreate` Pydantic model. This model includes the data for creating a new user.
-    - `db` (injected): A `Session` object provided by the `get_db` dependency.
-- **Function Body**:
-    - `crud.get_user_by_email(db, email=user.email)` checks if a user with the provided email already exists in the database.
-    - If a user is found (`db_user` is not `None`), an HTTP 400 error is raised with a detail message "Email already registered".
-    - If no user is found, `crud.create_user(db=db, user=user)` is called to create a new user in the database.
-- **Response Model**: `response_model=schemas.User` specifies that the response will be a `User` Pydantic model, representing the created user.
-
-### 3. **Get User by Email Endpoint**
-
-```python
-@app.get("/users/{email}", response_model=schemas.User)
-def get_user_by_email(email: str, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=email)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-```
-
-- **Decorator**: `@app.get("/users/{email}")` specifies that this function will handle HTTP GET requests to the `/users/{email}` URL, where `{email}` is a path parameter.
-- **Parameters**:
-    - `email`: The path parameter that specifies the email of the user to retrieve.
-    - `db` (injected): A `Session` object provided by the `get_db` dependency.
-- **Function Body**:
-    - `crud.get_user_by_email(db, email=email)` is called to fetch a user from the database by email.
-    - If no user is found (`db_user` is `None`), an HTTP 404 error is raised with a detail message "User not found".
-    - If a user is found, it is returned as a JSON response.
-- **Response Model**: `response_model=schemas.User` specifies that the response will be a `User` Pydantic model, representing the retrieved user.
-
-### Summary
-
-- **Routes**: Define how different URLs and HTTP methods (GET, POST) are handled.
-- **Dependency Injection**: `Depends(get_db)` provides a `Session` object for interacting with the database.
-- **Pydantic Models**: Ensure that request and response data conform to the specified schemas.
-- **CRUD Operations**: Functions like `crud.get_users`, `crud.get_user_by_email`, and `crud.create_user` handle the actual database interactions.
