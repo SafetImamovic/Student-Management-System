@@ -225,23 +225,26 @@ function createUserType() {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
-
     })
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
-                    throw new Error(errorData.detail || 'Unknown error');
+                    const errorHtml = parseErrorMsg(errorData);
+                    throw new Error(errorHtml);
                 });
             }
             return response.json();
         })
         .then(data => {
             showToast('User Type created successfully.');
-            document.getElementById('user-type-form').reset(); // Clear the form
+            document.getElementById('user-type-form').reset();
         })
         .catch(error => {
-            showToast(`Error creating user type: ${error.message}`);
+            const errorMessage = error.message || 'An unknown error occurred.';
+            showToast(errorMessage);
+            console.log('Error details:', errorMessage);
         });
+
 }
 
 
@@ -357,17 +360,21 @@ function createUser() {
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
-                    throw new Error(errorData.detail || 'Unknown error');
+                    const errorHtml = parseErrorMsg(errorData);
+                    throw new Error(errorHtml);
                 });
             }
             return response.json();
         })
         .then(data => {
             showToast('User created successfully.');
-            document.getElementById('user-form').reset(); // Clear the form
+            console.log(data);
+            document.getElementById('user-form').reset();
         })
         .catch(error => {
-            showToast(`Error creating user: ${error.message}`);
+            const errorMessage = error.message || 'An unknown error occurred.';
+            showToast(errorMessage);
+            console.log(errorMessage);
         });
 }
 
@@ -461,19 +468,27 @@ enrollmentForm.addEventListener('submit', event => {
             'Content-Type': 'application/json'
         },
         body: jsonData
-    }).then(response => {
+    })
+    .then(response => {
         if (response.ok) {
             showToast('Enrollment added successfully.');
             fetchEnrollments();
         } else {
             return response.json().then(errorData => {
-                throw new Error(errorData.detail || 'Unknown error');
+                // Use parseErrorMsg to format the error into HTML
+                const errorHtml = parseErrorMsg(errorData);
+                throw new Error(errorHtml);
             });
         }
-    }).catch(error => {
-        showToast(`Error creating enrollment: ${error.message}`);
+    })
+    .catch(error => {
+        // Display the formatted error message or a default message
+        const errorMessage = error.message || 'An unknown error occurred.';
+        showToast(`Error creating enrollment: ${errorMessage}`);
+        console.log('Error details:', errorMessage);
     });
 });
+
 
 const userIdSelect = document.getElementById('userIdEnrollment');
 const courseIdSelect = document.getElementById('courseIdEnrollment');
@@ -506,6 +521,45 @@ function fetchCourses() {
                 courseIdSelect.appendChild(option);
             });
         });
+}
+
+
+// -------------------------------------------------------------------------------------------------
+// Parses the Pydantic Error Response Object
+// -------------------------------------------------------------------------------------------------
+function parseErrorMsg(errorResponse) {
+    console.log('Received error response:', JSON.stringify(errorResponse, null, 2));
+
+    if (!errorResponse || !errorResponse.detail || !Array.isArray(errorResponse.detail)) {
+        return '<p>An unknown error occurred.</p>';
+    }
+
+    // Generate HTML list items for each error
+    const errorMessages = errorResponse.detail.map(error => {
+        const {type, loc, msg} = error;
+        const field = loc[loc.length - 1];
+
+        let customMessage = '';
+
+        switch (type) {
+            case 'string_too_short':
+                customMessage = `${field} should have at least ${error.ctx.min_length} character(s)`;
+                break;
+            case 'value_error':
+                customMessage = `${field} has an invalid value. ${msg}`;
+                break;
+            case 'type_error':
+                customMessage = `${field} has an incorrect type. ${msg}`;
+                break;
+            default:
+                customMessage = `${field} has an error: ${msg}`;
+                break;
+        }
+
+        return `<li>${customMessage}</li>`;
+    }).join(' ');
+
+    return `<ol>${errorMessages}</ol>`;
 }
 
 
@@ -592,8 +646,8 @@ function generateCourseSummaryHTML(course) {
                 <h5 class="card-title">${course.name}</h5>
                 <p class="card-text"><strong>Course ID:</strong> ${course.course_id} <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('${course.course_id}')">Copy</button></p>
                 <p class="card-text"><strong>Description:</strong> ${course.description} </p>
-                <p class="card-text"><strong>Start Date:</strong> ${new Date(course.start_date).toLocaleString()}</p>
-                <p class="card-text"><strong>End Date:</strong> ${new Date(course.end_date).toLocaleString()}</p>
+                <p class="card-text"><strong>Start Date:</strong> ${course.start_date}</p>
+                <p class="card-text"><strong>End Date:</strong> ${course.end_date}</p>
                 <p class="card-text"><strong>Created At:</strong> ${new Date(course.created_at).toLocaleString()}</p>
                 <p class="card-text"><strong>Updated At:</strong> ${new Date(course.updated_at).toLocaleString()}</p>
                 <div class="mt-3">

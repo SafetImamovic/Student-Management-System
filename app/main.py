@@ -444,9 +444,17 @@ def create_course(course: schemas.CourseCreate, db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: Created Course instance
     """
+
+    if (len(course.name) < 3):
+        raise HTTPException(status_code=400, detail="Course name must be at least 3 characters long")
+
     db_course = crud.get_course_by_name(db, name=course.name)
+
     if db_course:
         raise HTTPException(status_code=400, detail="Course already exists")
+
+    if course.start_date > course.end_date:
+        raise HTTPException(status_code=400, detail="Course start date must be older than Course end date")
 
     return crud.create_course(db=db, course=course)
 
@@ -524,6 +532,21 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
 
     if db_exists:
         raise HTTPException(status_code=400, detail="Enrollment already exists")
+
+    db_user = crud.get_user_by_id(db, user_id=enrollment.user_id)
+    db_course = crud.get_course_by_id(db, course_id=enrollment.course_id)
+
+    if not db_course and not db_user:
+        raise HTTPException(status_code=404, detail=f"Course and User not found for Course ID: {enrollment.course_id} and User ID: {enrollment.user_id}")
+
+    if not db_user and db_course:
+        raise HTTPException(status_code=404, detail=f"User not found for User ID: {enrollment.user_id}")
+
+    if not db_course and db_user:
+        raise HTTPException(status_code=404, detail=f"Course not found for Course ID: {enrollment.course_id}")
+
+    if enrollment.enrolled_date >= enrollment.end_date:
+        raise HTTPException(status_code=400, detail="Enrollment start date must be older than Enrollment end date")
 
     db_enrollment = crud.create_enrollment(db, enrollment)
 
