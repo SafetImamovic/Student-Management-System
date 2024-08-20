@@ -231,10 +231,10 @@ def re_seed_database(db: Session = Depends(get_db)):
 
 
 # -------------------------------------------------------------------------------------------------
-# User specific CRUD operations, # of functions = 6
+# User specific CRUD operations, # of functions = 7
 # -------------------------------------------------------------------------------------------------
 
-@app.get('/users_count/', response_model=int, tags=["Users"])
+@app.get('/users/count/', response_model=int, tags=["Users"])
 def get_users_count(db: Session = Depends(get_db)):
     """
     This function returns the number of users in the database
@@ -316,19 +316,38 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
-@app.delete("/delete_users/{user_id}", response_model=schemas.User, tags=["Users"])
+@app.delete("/users/{user_id}", response_model=schemas.User, tags=["Users"])
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     """
-    This path operation deletes a user using the crud.delete_user() function
+    This path operation performs a soft delete on a user by setting the is_active field to False.
     :param user_id: The id of the user
     :param db: The database session to use
-    :return: Deleted User instance
+    :return: The User instance with is_active set to False
     """
     db_user = crud.get_user_by_id(db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    crud.delete_user(db, user_id=user_id)
+    db_user = crud.soft_delete_user(db, user_id=user_id)
+
+    return db_user
+
+
+@app.put("/users/reactivate/{user_id}", response_model=schemas.User, tags=["Users"])
+def reactivate_user(user_id: int, db: Session = Depends(get_db)):
+    """
+    This path operation reactivates a user by setting the is_active field to True.
+    :param user_id: The id of the user
+    :param db: The database session to use
+    :return: The reactivated User instance
+    """
+    db_user = crud.get_user_by_id(db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if db_user.is_active:
+        raise HTTPException(status_code=400, detail="User is already active")
+
+    db_user = crud.reactivate_user(db, user_id=user_id)
 
     return db_user
 
@@ -337,7 +356,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 # User Type specific CRUD operations, # of functions = 6
 # -------------------------------------------------------------------------------------------------
 
-@app.get('/user_types_count/', response_model=int, tags=["User Types"])
+@app.get('/user_types/count/', response_model=int, tags=["User Types"])
 def get_user_types_count(db: Session = Depends(get_db)):
     """
     This function returns the number of user types in the database
@@ -418,7 +437,7 @@ def create_user_type(user_type: schemas.UserTypeCreate, db: Session = Depends(ge
     return create_db_user_type
 
 
-@app.delete('/delete_user_types/{user_type_id}', response_model=schemas.UserType, tags=["User Types"])
+@app.delete('/user_types/{user_type_id}', response_model=schemas.UserType, tags=["User Types"])
 def delete_user_type(user_type_id: int, db: Session = Depends(get_db)):
     """
     This path operation deletes a user type using the crud.delete_user_type() function
@@ -436,10 +455,10 @@ def delete_user_type(user_type_id: int, db: Session = Depends(get_db)):
 
 
 # -------------------------------------------------------------------------------------------------
-# Course specific CRUD operations, # of functions = 6
+# Course specific CRUD operations, # of functions = 7
 # -------------------------------------------------------------------------------------------------
 
-@app.get('/courses_count/', response_model=int, tags=["Courses"])
+@app.get('/courses/count/', response_model=int, tags=["Courses"])
 def get_courses_count(db: Session = Depends(get_db)):
     """
     This function returns the number of courses in the database
@@ -516,28 +535,64 @@ def create_course(course: schemas.CourseCreate, db: Session = Depends(get_db)):
     return crud.create_course(db=db, course=course)
 
 
-@app.delete('/delete_course/{course_id}', response_model=schemas.Course, tags=["Courses"])
+# @app.delete('/course/{course_id}', response_model=schemas.Course, tags=["Courses"])
+# def delete_course(course_id: int, db: Session = Depends(get_db)):
+#     """
+#     This path operation deletes a course using the crud.delete_course() function
+#     :param course_id: The id of the course
+#     :param db: The database session to use
+#     :return: The Deleted Course instance
+#     """
+#     db_course = crud.get_course_by_id(db, course_id=course_id)
+#     if not db_course:
+#         raise HTTPException(status_code=404, detail="Course not found")
+#
+#     crud.delete_course(db, course_id=course_id)
+#
+#     return db_course
+
+
+@app.delete("/courses/{course_id}", response_model=schemas.Course, tags=["Courses"])
 def delete_course(course_id: int, db: Session = Depends(get_db)):
     """
-    This path operation deletes a course using the crud.delete_course() function
+    This path operation performs a soft delete on a course by setting the is_active field to False.
     :param course_id: The id of the course
     :param db: The database session to use
-    :return: The Deleted Course instance
+    :return: The Course instance with is_active set to False
     """
     db_course = crud.get_course_by_id(db, course_id=course_id)
     if not db_course:
         raise HTTPException(status_code=404, detail="Course not found")
 
-    crud.delete_course(db, course_id=course_id)
+    db_course = crud.soft_delete_course(db, course_id=course_id)
+
+    return db_course
+
+
+@app.put("/courses/reactivate/{course_id}", response_model=schemas.Course, tags=["Courses"])
+def reactivate_course(course_id: int, db: Session = Depends(get_db)):
+    """
+    This path operation reactivates a course by setting the is_active field to True.
+    :param course_id: The id of the course
+    :param db: The database session to use
+    :return: The reactivated Course instance
+    """
+    db_course = crud.get_course_by_id(db, course_id=course_id)
+    if not db_course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    if db_course.is_active:
+        raise HTTPException(status_code=400, detail="Course is already active")
+
+    db_course = crud.reactivate_course(db, course_id=course_id)
 
     return db_course
 
 
 # -------------------------------------------------------------------------------------------------
-# Enrollment specific CRUD operations, # of functions = 5
+# Enrollment specific CRUD operations, # of functions = 4
 # -------------------------------------------------------------------------------------------------
 
-@app.get('/enrollments_count/', response_model=int, tags=["Enrollments"])
+@app.get('/enrollments/count/', response_model=int, tags=["Enrollments"])
 def get_enrollments_count(db: Session = Depends(get_db)):
     """
     This function returns the number of enrollments in the database

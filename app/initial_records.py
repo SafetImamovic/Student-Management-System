@@ -5,7 +5,6 @@ default_users = [
         "username": "admin",
         "email": "safet.imamovic.22@size.ba",
         "age": 21,
-        "is_active": True,
         "user_type_id": 1,
         "hashed_password": "admin"
     },
@@ -15,7 +14,6 @@ default_users = [
         "username": "johndoe123",
         "email": "john.doe@example.com",
         "age": 21,
-        "is_active": True,
         "user_type_id": 2,
         "hashed_password": "password1"
     },
@@ -25,7 +23,6 @@ default_users = [
         "username": "janedoe69",
         "email": "jane.smith@example.com",
         "age": 22,
-        "is_active": True,
         "user_type_id": 2,
         "hashed_password": "password2"
     }

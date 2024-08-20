@@ -51,23 +51,51 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     :return: User
     """
     hashed_password = user.password + "fakehashed"
-    db_user = models.User(**user.dict())
+
+    db_user = models.User(
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        username=user.username,
+        age=user.age,
+        is_active=user.is_active,
+        user_type_id=user.user_type_id,
+        hashed_password=hashed_password
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
 
-def delete_user(db: Session, user_id: int) -> models.User:
-    """
-    This function deletes a User based on the given user_id
-    :param db: The database session
-    :param user_id:
-    :return: deleted User
-    """
+# def delete_user(db: Session, user_id: int) -> models.User:
+#     """
+#     This function deletes a User based on the given user_id
+#     :param db: The database session
+#     :param user_id:
+#     :return: deleted User
+#     """
+#     db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+#     db.delete(db_user)
+#     db.commit()
+#     return db_user
+
+
+def soft_delete_user(db: Session, user_id: int):
     db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
-    db.delete(db_user)
-    db.commit()
+    if db_user:
+        db_user.is_active = False
+        db.commit()
+        db.refresh(db_user)
+    return db_user
+
+
+def reactivate_user(db: Session, user_id: int):
+    db_user = db.query(models.User).filter(models.user_id == user_id).first()
+    if db_user:
+        db_user.is_active = True
+        db.commit()
+        db.refresh(db_user)
     return db_user
 
 
@@ -188,17 +216,36 @@ def create_course(db: Session, course: schemas.CourseCreate) -> models.Course:
     return db_course
 
 
-def delete_course(db: Session, course_id: int) -> models.Course:
-    """
-    This function deletes a Course based on the given course_id
-    :param db: The database session
-    :param course_id: The given course_id
-    :return: Deleted Course instance
-    """
-    db_course = db.query(models.Course).filter(models.Course.id == course_id).first()
-    db.delete(db_course)
-    db.commit()
+# def delete_course(db: Session, course_id: int) -> models.Course:
+#     """
+#     This function deletes a Course based on the given course_id
+#     :param db: The database session
+#     :param course_id: The given course_id
+#     :return: Deleted Course instance
+#     """
+#     db_course = db.query(models.Course).filter(models.Course.id == course_id).first()
+#     db.delete(db_course)
+#     db.commit()
+#     return db_course
+
+
+def soft_delete_course(db: Session, course_id: int):
+    db_course = db.query(models.Course).filter(models.Course.user_id == course_id).first()
+    if db_course:
+        db_course.is_active = False
+        db.commit()
+        db.refresh(db_course)
     return db_course
+
+
+def reactivate_course(db: Session, course_id: int):
+    db_course = db.query(models.Course).filter(models.Course.course_id == course_id).first()
+    if db_course:
+        db_course.is_active = True
+        db.commit()
+        db.refresh(db_course)
+    return db_course
+
 
 
 # -------------------------------------------------------------------------------------------------

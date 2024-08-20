@@ -16,8 +16,7 @@ We first delete the `Test` model from the previous section and create 4 new mode
 3. `Courses`
 4. `Enrollments`
 
-<code-block lang="python" collapsed-title="models.py" collapsible="true">
-<![CDATA[
+```python
 from datetime import datetime, date
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Date, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import relationship
@@ -89,7 +88,7 @@ __tablename__ = 'enrollments'
 
 ]]>
 
-</code-block>
+```
 
 In this code:
 - We define the `UserType`, `User`, `Course`, and `Enrollment` models.
@@ -151,8 +150,7 @@ student_management_system_db=# \d
 
 If we take a look at the revision script, we can see the SQL commands that were executed:
 
-<code-block lang="python" collapsible="true" collapsed-title="Migration Script">
-<![CDATA[
+```python
 """create tables users, user_types, courses, enrollments
 
 Revision ID: 088d7ca97ba4
@@ -235,8 +233,4 @@ op.drop_table('users')
 op.drop_table('user_types')
 op.drop_table('courses')
 # ### end Alembic commands ###
-
-]]>
-
-</code-block>
-
+```

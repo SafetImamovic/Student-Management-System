@@ -26,10 +26,7 @@ So, the user will also have a password when creating it.
 
 But for security, the password won't be in other Pydantic models, for example, it won't be sent from the API when reading a user.
 
-
-
-<code-block lang="python" collapsed-title="schemas.py" collapsible="true">
-<![CDATA[
+```python
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, validator, field_validator, FieldValidationInfo
 from datetime import datetime, date
@@ -166,9 +163,7 @@ updated_at: datetime
     class Config:
         orm_mode = True
 
-
-]]>
-</code-block>
+```
 
 
 Here's a breakdown of the schema:

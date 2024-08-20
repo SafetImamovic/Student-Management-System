@@ -172,7 +172,7 @@ Here’s a detailed explanation of each of the provided endpoints:
 ### 1. **Get Users Count Endpoint**
 
 ```python
-@app.get('/users_count/', response_model=int, tags=["Users"])
+@app.get('/users/count/', response_model=int, tags=["Users"])
 def get_users_count(db: Session = Depends(get_db)):
     """
     This function returns the number of users in the database.
@@ -316,37 +316,36 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     - If no errors, the new user is created and returned.
 - **Response Model**: `response_model=schemas.User` specifies that the response will be a `User` Pydantic model representing the created user.
 
-### 6. **Delete User Endpoint**
+
+Here’s the updated documentation based on the new soft delete mechanic for users:
+
+### 6. **Soft Delete User Endpoint**
 
 ```python
-@app.delete("/delete_users/{user_id}", response_model=schemas.User, tags=["Users"])
+@app.delete("/users/{user_id}", response_model=schemas.User, tags=["Users"])
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     """
-    This path operation deletes a user using the crud.delete_user() function.
-    :param user_id: The ID of the user to delete.
+    This path operation performs a soft delete on a user by setting the is_active field to False.
+    :param user_id: The ID of the user to soft delete.
     :param db: The database session to use.
-    :return: Deleted User instance.
+    :return: The User instance with is_active set to False.
     """
     db_user = crud.get_user_by_id(db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    crud.delete_user(db, user_id=user_id)
+    db_user = crud.soft_delete_user(db, user_id=user_id)
 
     return db_user
 ```
 
-- **Decorator**: `@app.delete("/delete_users/{user_id}")` specifies that this function handles HTTP DELETE requests to the `/delete_users/{user_id}` URL.
+- **Decorator**: `@app.delete("/users/{user_id}")` specifies that this function handles HTTP DELETE requests to the `/users/{user_id}` URL.
 - **Parameters**:
-    - `user_id`: The path parameter specifying the ID of the user to delete.
-    - `db` (injected): A `Session` object provided by the `get_db` dependency.
+  - `user_id`: The path parameter specifying the ID of the user to soft delete.
+  - `db` (injected): A `Session` object provided by the `get_db` dependency.
 - **Function Body**:
-    - `crud.get_user_by_id(db, user_id=user_id)` retrieves the user from the database by ID.
-    - If the user is not found (`db_user` is `None`), an HTTP 404 error is raised with the message "User not found".
-    - If found, the user is deleted using `crud.delete_user(db, user_id=user_id)`.
-    - The deleted user instance is returned.
-- **Response Model**: `response_model=schemas.User` specifies that the response will be a `User` Pydantic model representing the deleted user.
-
-These endpoints use FastAPI’s dependency injection to manage database sessions and handle CRUD
-
-operations while ensuring responses are consistently formatted.
+  - `crud.get_user_by_id(db, user_id=user_id)` retrieves the user from the database by ID.
+  - If the user is not found (`db_user` is `None`), an HTTP 404 error is raised with the message "User not found".
+  - If found, the user is soft deleted by setting the `is_active` field to `False` using `crud.soft_delete_user(db, user_id=user_id)`.
+  - The updated user instance is returned with the `is_active` field set to `False`.
+- **Response Model**: `response_model=schemas.User` specifies that the response will be a `User` Pydantic model representing the soft-deleted user.

@@ -6,18 +6,15 @@ url_address = "http://localhost:8000/"
 routes = {
     "user_types/": "user_types/",
     "users/": "users/",
+    "courses/": "courses/",
+    "enrollments/": "enrollments/",
     "users/email/": "users/email/",
-    "delete_users/": "delete_users/",
-    "delete_user_types/": "delete_user_types/",
     "truncate_db/": "truncate_db/",
     "re_seed_db/": "re_seed_db/",
-    "users_count/": "users_count/",
-    "user_types_count/": "user_types_count/",
-    "courses_count/": "courses_count/",
-    "enrollments_count/": "enrollments_count/",
-    "enrollments/": "enrollments/",
-    "courses/": "courses/",
-    "delete_enrollment/": "delete_enrollment/",
+    "user_types/count/": "user_types/count/",
+    "users/count/": "users/count/",
+    "courses/count/": "courses/count/",
+    "enrollments/count/": "enrollments/count/",
 }
 
 
@@ -89,7 +86,7 @@ function updateCounts() {
     const courses_count = document.getElementById('courses_count');
     const enrollments_count = document.getElementById('enrollments_count');
 
-    fetch(url_address + routes["user_types_count/"])
+    fetch(url_address + routes["user_types/count/"])
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
@@ -111,7 +108,7 @@ function updateCounts() {
         });
 
 
-    fetch(url_address + routes["users_count/"])
+    fetch(url_address + routes["users/count/"])
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
@@ -133,7 +130,7 @@ function updateCounts() {
         });
 
 
-    fetch(url_address + routes["courses_count/"])
+    fetch(url_address + routes["courses/count/"])
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
@@ -155,7 +152,7 @@ function updateCounts() {
         });
 
 
-    fetch(url_address + routes["enrollments_count/"])
+    fetch(url_address + routes["enrollments/count/"])
         .then(response => {
             if (!response.ok) {
                 return response.json().then(errorData => {
@@ -345,7 +342,6 @@ function createUser() {
         username: document.getElementById('username').value,
         email: document.getElementById('email').value,
         age: parseInt(document.getElementById('age').value),
-        is_active: document.getElementById('is-active').checked,
         user_type_id: parseInt(document.getElementById('user-type-id').value),
         password: document.getElementById('password').value
     };
@@ -439,7 +435,7 @@ function fetchEnrollments() {
 
 function deleteEnrollment(id) {
     if (confirm('Are you sure you want to delete this enrollment?')) {
-        fetch(url_address + routes["delete_enrollment/"] + `${id}`, {method: 'DELETE'})
+        fetch(url_address + routes["enrollments/"] + `${id}`, {method: 'DELETE'})
             .then(response => {
                 if (response.ok) {
                     showToast('Enrollment deleted successfully.');
@@ -591,8 +587,9 @@ function generateUserSummaryHTML(user) {
                 <h5 class="card-title">${user.first_name} ${user.last_name}</h5>
                 <p class="card-text"><strong>User ID:</strong> ${user.user_id} <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('${user.user_id}')">Copy</button></p>
                 <p class="card-text"><strong>Username:</strong> ${user.username}</p>
+                <p class="card-text"><strong>Active:</strong> ${user.is_active}</p>
                 <p class="card-text"><strong>Email:</strong> ${user.email} <button class="btn btn-sm btn-secondary" onclick="copyToClipboard('${user.email}')">Copy</button></p>
-                <button class="btn btn-secondary" onclick="fillForm('${user.user_id}', '${user.first_name}', '${user.last_name}', '${user.username}', '${user.email}', ${user.age}, ${user.is_active}, '${user.user_type_id}')">Fill Form</button>
+                <button class="btn btn-secondary" onclick="fillForm('${user.user_id}', '${user.first_name}', '${user.last_name}', '${user.username}', '${user.email}', ${user.age}, '${user.user_type_id}')">Fill Form</button>
                 <button class="btn btn-danger" onclick="deleteUser('${user.user_id}')">Delete</button>
             </div>
         </div>`;
@@ -606,13 +603,12 @@ function generateActionsHTML(user) {
         </div>`;
 }
 
-function fillForm(userId, firstName, lastName, username, email, age, isActive, userTypeId) {
+function fillForm(userId, firstName, lastName, username, email, age, userTypeId) {
     document.getElementById('first-name').value = firstName;
     document.getElementById('last-name').value = lastName;
     document.getElementById('username').value = username;
     document.getElementById('email').value = email;
     document.getElementById('age').value = age;
-    document.getElementById('is-active').checked = isActive;
     document.getElementById('user-type-id').value = userTypeId;
 }
 
@@ -663,7 +659,7 @@ function generateCourseSummaryHTML(course) {
 // -------------------------------------------------------------------------------------------------
 function deleteUser(userId) {
     if (confirm('Are you sure you want to delete this user?')) {
-        fetch(url_address + routes["delete_users/"] + `${userId}`, {method: 'DELETE'})
+        fetch(url_address + routes["users/"] + `${userId}`, {method: 'DELETE'})
             .then(response => {
                 if (response.ok) {
                     showToast('User deleted successfully.');
@@ -686,7 +682,7 @@ function deleteUser(userId) {
 // -------------------------------------------------------------------------------------------------
 function deleteUserType(user_type_id) {
     if (confirm('Are you sure you want to delete this user?')) {
-        fetch(url_address + routes["delete_user_types/"] + `${user_type_id}`, {method: 'DELETE'})
+        fetch(url_address + routes["user_types/"] + `${user_type_id}`, {method: 'DELETE'})
             .then(response => {
                 if (response.ok) {
                     showToast('User deleted successfully.');
