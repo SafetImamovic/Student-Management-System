@@ -11,13 +11,20 @@ to enable User creation. This is where seeding comes in.
 In the `crud.py` file in the `app` directory, the following code to seed the tables is added:
 
 ```Python
+import app.database.schemas.enrollments
+import app.database.schemas.courses
+import app.database.schemas.users
+
+import app.database.schemas.user_types
+
+
 def seed_user_types(db: Session):
     """
     This function seeds the user_types table with some initial values
     :param db:
     :return:
     """
-    if db.query(models.UserType).count() == 0:
+    if db.query(app.database.schemas.user_types.UserType).count() == 0:
         reset_auto_increment(db, 'user_types', 'user_type_id')
 
         default_user_types = ['Admin', 'Student']
@@ -25,7 +32,7 @@ def seed_user_types(db: Session):
         # results = []
 
         for user_type in default_user_types:
-            db.add(models.UserType(name=user_type))
+            db.add(app.database.schemas.user_types.UserType(name=user_type))
         db.commit()
 
 
@@ -35,11 +42,11 @@ def seed_users(db: Session):
     :param db:
     :return:
     """
-    if db.query(models.User).count() == 0:
+    if db.query(app.database.schemas.users.User).count() == 0:
         reset_auto_increment(db, 'users', 'user_id')
 
         for user in default_users:
-            db.add(models.User(**user))
+            db.add(app.database.schemas.users.User(**user))
         db.commit()
 
 
@@ -49,11 +56,11 @@ def seed_courses(db: Session):
     :param db:
     :return:
     """
-    if db.query(models.Course).count() == 0:
+    if db.query(app.database.schemas.courses.Course).count() == 0:
         reset_auto_increment(db, 'courses', 'course_id')
 
         for course in default_courses:
-            db.add(models.Course(**course))
+            db.add(app.database.schemas.courses.Course(**course))
         db.commit()
 
 
@@ -63,10 +70,10 @@ def seed_enrollments(db: Session):
     :param db:
     :return:
     """
-    if db.query(models.Enrollment).count() == 0:
+    if db.query(app.database.schemas.enrollments.Enrollment).count() == 0:
 
         for enrollment in default_enrollments:
-            db.add(models.Enrollment(**enrollment))
+            db.add(app.database.schemas.enrollments.Enrollment(**enrollment))
         db.commit()
 
 

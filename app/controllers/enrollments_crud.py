@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app.database.models import enrollments as models
+from app.database.schemas import enrollments as schemas
 
 
 def get_enrollment_by_ids(db: Session, user_id: int, course_id: int) -> models.Enrollment:
@@ -10,16 +11,16 @@ def get_enrollment_by_ids(db: Session, user_id: int, course_id: int) -> models.E
     :return: Enrollment based on the given user_id and course_id composite key
     """
     db_enrollment = db.query(models.Enrollment).filter(models.Enrollment.user_id == user_id,
-                                                       models.Enrollment.course_id == course_id).first()
+                                                         models.Enrollment.course_id == course_id).first()
 
     return db_enrollment
 
 
 def get_enrollments(db: Session, skip: int = 0, limit: int = 10) -> list[models.Enrollment]:
     """
-    This function queries the database for the Enrollment with the given skip and limit boundaries
+    This function queries the models for the Enrollment with the given skip and limit boundaries
     and returns a list of Enrollments
-    :param db: The database session
+    :param db: The models session
     :param skip: The starting index of the list, 0 by default
     :param limit: The ending index (skip + limit), 10 by default
     :return: List[models.Enrollment]:
@@ -30,7 +31,7 @@ def get_enrollments(db: Session, skip: int = 0, limit: int = 10) -> list[models.
 def create_enrollment(db: Session, enrollment: schemas.EnrollmentCreate) -> models.Enrollment:
     """
     This function creates a new Enrollment based on the given enrollment pydantic model
-    :param db: The database session
+    :param db: The models session
     :param enrollment: The given enrollment pydantic model
     :return: Created Enrollment instance
     """
@@ -44,7 +45,7 @@ def create_enrollment(db: Session, enrollment: schemas.EnrollmentCreate) -> mode
 def delete_enrollment(db: Session, enrollment_id: int) -> models.Enrollment:
     """
     This function deletes a Enrollment based on the given enrollment_id
-    :param db: The database session
+    :param db: The models session
     :param enrollment_id: The given enrollment_id
     :return: The deleted Enrollment instance
     """

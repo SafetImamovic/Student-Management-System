@@ -1,12 +1,13 @@
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app.database.models import users as models
+from app.database.schemas import users as schemas
 
 
-def get_user_by_id(db: Session, user_id: int) -> models.User:
+def get_user_by_id(db: Session, user_id: int) -> schemas.User:
     """
-    This function queries the database for the User with the given user_id
+    This function queries the models for the User with the given user_id
     and returns the User with the given user_id
-    :param db: The database session
+    :param db: The models session
     :param user_id:
     :return User:
     """
@@ -15,9 +16,9 @@ def get_user_by_id(db: Session, user_id: int) -> models.User:
 
 def get_user_by_email(db: Session, email: str) -> models.User:
     """
-    This function queries the database for the User with the given email
+    This function queries the models for the User with the given email
     and returns the User with the given email
-    :param db: The database session
+    :param db: The models session
     :param email:
     :return User:
     """
@@ -26,9 +27,9 @@ def get_user_by_email(db: Session, email: str) -> models.User:
 
 def get_users(db: Session, skip: int = 0, limit: int = 10) -> list[models.User]:
     """
-    This function queries the database for Users with the given skip and limit boundaries
+    This function queries the models for Users with the given skip and limit boundaries
     and returns a list of Users
-    :param db: The database session
+    :param db: The models session
     :param skip: Starting index of the list, 0 by default
     :param limit: Ending index (skip + limit), 10 by default
     :return List[Type[models.User]]:
@@ -43,7 +44,7 @@ def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     It uses a fake hashing 'algorithm', just appends "fakehashed" to the given password.
 
     TODO: Change the hashing
-    :param db: The database session
+    :param db: The models session
     :param user: schemas.UserCreate
     :return: User
     """

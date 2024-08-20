@@ -69,73 +69,83 @@ def pydantic_error_response(errors: list):
 
 ## Example for Creating an Enrollment
 Before Pydantic style error response:
+
 ```Python
-@app.post('/enrollments/', response_model=schemas.Enrollment, tags=["Enrollments"])
-def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depends(get_db)):
-    """
-    This path operation creates an Enrollment using the crud.create_enrollment() function
-    :param enrollment: schemas.EnrollmentCreate
-    :param db: The database session to use
-    :return: The Enrollment instance
-    """
-    db_exists = crud.get_enrollment_by_ids(db, user_id=enrollment.user_id, course_id=enrollment.course_id)
+import app.database.schemas.enrollments
 
-    if db_exists:
-        raise HTTPException(status_code=400, detail="Enrollment already exists")
 
-    db_user = crud.get_user_by_id(db, user_id=enrollment.user_id)
-    db_course = crud.get_course_by_id(db, course_id=enrollment.course_id)
+@app.post('/enrollments/', response_model=app.database.schemas.enrollments.Enrollment, tags=["Enrollments"])
+def create_enrollment(enrollment: app.database.schemas.enrollments.EnrollmentCreate, db: Session = Depends(get_db)):
+  """
+  This path operation creates an Enrollment using the crud.create_enrollment() function
+  :param enrollment: schemas.EnrollmentCreate
+  :param db: The database session to use
+  :return: The Enrollment instance
+  """
+  db_exists = crud.get_enrollment_by_ids(db, user_id=enrollment.user_id, course_id=enrollment.course_id)
 
-    if not db_course and not db_user:
-        raise HTTPException(status_code=404,
-                            detail=f"Course and User not found for Course ID: {enrollment.course_id} and User ID: {enrollment.user_id}")
+  if db_exists:
+    raise HTTPException(status_code=400, detail="Enrollment already exists")
 
-    if not db_user and db_course:
-        raise HTTPException(status_code=404, detail=f"User not found for User ID: {enrollment.user_id}")
+  db_user = crud.get_user_by_id(db, user_id=enrollment.user_id)
+  db_course = crud.get_course_by_id(db, course_id=enrollment.course_id)
 
-    if not db_course and db_user:
-        raise HTTPException(status_code=404, detail=f"Course not found for Course ID: {enrollment.course_id}")
+  if not db_course and not db_user:
+    raise HTTPException(status_code=404,
+                        detail=f"Course and User not found for Course ID: {enrollment.course_id} and User ID: {enrollment.user_id}")
 
-    db_enrollment = crud.create_enrollment(db, enrollment)
+  if not db_user and db_course:
+    raise HTTPException(status_code=404, detail=f"User not found for User ID: {enrollment.user_id}")
 
-    return db_enrollment
+  if not db_course and db_user:
+    raise HTTPException(status_code=404, detail=f"Course not found for Course ID: {enrollment.course_id}")
+
+  db_enrollment = crud.create_enrollment(db, enrollment)
+
+  return db_enrollment
 ```
 
 After:
+
 ```Python
-@app.post('/enrollments/', response_model=schemas.Enrollment, tags=["Enrollments"])
-def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depends(get_db)):
-"""
-This path operation creates an Enrollment using the crud.create_enrollment() function
-:param enrollment: schemas.EnrollmentCreate
-:param db: The database session to use
-:return: The Enrollment instance
-"""
+import app.database.schemas.enrollments
+
+
+@app.post('/enrollments/', response_model=app.database.schemas.enrollments.Enrollment, tags=["Enrollments"])
+def create_enrollment(enrollment: app.database.schemas.enrollments.EnrollmentCreate, db: Session = Depends(get_db)):
+
+
+  """
+  This path operation creates an Enrollment using the crud.create_enrollment() function
+  :param enrollment: schemas.EnrollmentCreate
+  :param db: The database session to use
+  :return: The Enrollment instance
+  """
 db_exists = crud.get_enrollment_by_ids(db, user_id=enrollment.user_id, course_id=enrollment.course_id)
 
-    if db_exists:
-        return pydantic_error_response(
-            loc=["body", "user_id", "course_id"],
-            msg="Enrollment already exists"
-        )
+if db_exists:
+  return pydantic_error_response(
+    loc=["body", "user_id", "course_id"],
+    msg="Enrollment already exists"
+  )
 
-    db_user = crud.get_user_by_id(db, user_id=enrollment.user_id)
-    db_course = crud.get_course_by_id(db, course_id=enrollment.course_id)
+db_user = crud.get_user_by_id(db, user_id=enrollment.user_id)
+db_course = crud.get_course_by_id(db, course_id=enrollment.course_id)
 
-    if not db_user:
-        return pydantic_error_response(
-            loc=["body", "user_id"],
-            msg=f"User not found for User ID: {enrollment.user_id}"
-        )
+if not db_user:
+  return pydantic_error_response(
+    loc=["body", "user_id"],
+    msg=f"User not found for User ID: {enrollment.user_id}"
+  )
 
-    if not db_course:
-        return pydantic_error_response(
-            loc=["body", "course_id"],
-            msg=f"Course not found for Course ID: {enrollment.course_id}"
-        )
+if not db_course:
+  return pydantic_error_response(
+    loc=["body", "course_id"],
+    msg=f"Course not found for Course ID: {enrollment.course_id}"
+  )
 
-    db_enrollment = crud.create_enrollment(db, enrollment)
-    return db_enrollment
+db_enrollment = crud.create_enrollment(db, enrollment)
+return db_enrollment
 ```
 
 
@@ -172,14 +182,17 @@ Here’s a detailed explanation of each of the provided endpoints:
 ### 1. **Get Users Count Endpoint**
 
 ```python
+import app.database.schemas.users
+
+
 @app.get('/users/count/', response_model=int, tags=["Users"])
 def get_users_count(db: Session = Depends(get_db)):
-    """
-    This function returns the number of users in the database.
-    :param db: The database session to use.
-    :return: The number of users in the database.
-    """
-    return db.query(models.User).count()
+  """
+  This function returns the number of users in the database.
+  :param db: The database session to use.
+  :return: The number of users in the database.
+  """
+  return db.query(app.database.schemas.users.User).count()
 ```
 
 - **Decorator**: `@app.get('/users_count/')` specifies that this function handles HTTP GET requests to the `/users_count/` URL.
@@ -192,18 +205,21 @@ def get_users_count(db: Session = Depends(get_db)):
 ### 2. **Get User by ID Endpoint**
 
 ```python
-@app.get('/users/{user_id}', response_model=schemas.User, tags=["Users"])
+import app.database.schemas.users
+
+
+@app.get('/users/{user_id}', response_model=app.database.schemas.users.User, tags=["Users"])
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
-    """
-    This path operation returns a User based on the given ID using the crud.get_user_by_id() function.
-    :param user_id: The given User ID.
-    :param db: The database session to use.
-    :return: The User instance.
-    """
-    db_user = crud.get_user_by_id(db, user_id=user_id)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+  """
+  This path operation returns a User based on the given ID using the crud.get_user_by_id() function.
+  :param user_id: The given User ID.
+  :param db: The database session to use.
+  :return: The User instance.
+  """
+  db_user = crud.get_user_by_id(db, user_id=user_id)
+  if not db_user:
+    raise HTTPException(status_code=404, detail="User not found")
+  return db_user
 ```
 
 - **Decorator**: `@app.get('/users/{user_id}')` specifies that this function handles HTTP GET requests to the `/users/{user_id}` URL, where `{user_id}` is a path parameter.
@@ -219,18 +235,21 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
 ### 3. **Get User by Email Endpoint**
 
 ```python
-@app.get("/users/email/{email}", response_model=schemas.User, tags=["Users"])
+import app.database.schemas.users
+
+
+@app.get("/users/email/{email}", response_model=app.database.schemas.users.User, tags=["Users"])
 def get_user_by_email(email: str, db: Session = Depends(get_db)):
-    """
-    This path operation returns the user with the given email using the crud.get_user_by_email() function.
-    :param email: The email of the user.
-    :param db: The database session to use.
-    :return: The User instance.
-    """
-    db_user = crud.get_user_by_email(db, email=email)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+  """
+  This path operation returns the user with the given email using the crud.get_user_by_email() function.
+  :param email: The email of the user.
+  :param db: The database session to use.
+  :return: The User instance.
+  """
+  db_user = crud.get_user_by_email(db, email=email)
+  if not db_user:
+    raise HTTPException(status_code=404, detail="User not found")
+  return db_user
 ```
 
 - **Decorator**: `@app.get("/users/email/{email}")` specifies that this function handles HTTP GET requests to the `/users/email/{email}` URL, where `{email}` is a path parameter.
@@ -246,17 +265,20 @@ def get_user_by_email(email: str, db: Session = Depends(get_db)):
 ### 4. **Read Users Endpoint**
 
 ```python
-@app.get("/users/", response_model=list[schemas.User], tags=["Users"])
+import app.database.schemas.users
+
+
+@app.get("/users/", response_model=list[app.database.schemas.users.User], tags=["Users"])
 def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    """
-    This path operation returns a list of users using the crud.get_users() function.
-    :param skip: The number of items to skip at the beginning of the list.
-    :param limit: The maximum number of items to return.
-    :param db: The database session to use.
-    :return: The list of users.
-    """
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
+  """
+  This path operation returns a list of users using the crud.get_users() function.
+  :param skip: The number of items to skip at the beginning of the list.
+  :param limit: The maximum number of items to return.
+  :param db: The database session to use.
+  :return: The list of users.
+  """
+  users = crud.get_users(db, skip=skip, limit=limit)
+  return users
 ```
 
 - **Decorator**: `@app.get("/users/")` specifies that this function handles HTTP GET requests to the `/users/` URL.
@@ -272,35 +294,38 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 ### 5. **Create User Endpoint**
 
 ```python
-@app.post("/users/", response_model=schemas.User, tags=["Users"])
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    """
-    This path operation creates a new user using the crud.create_user() function.
-    :param user: schemas.UserCreate
-    :param db: The database session to use.
-    :return: Created User instance.
-    """
-    errors = []
+import app.database.schemas.users
 
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        add_error(
-            errors=errors,
-            loc=[Location.BODY, "email"],
-            msg="Email already registered"
-        )
 
-    if crud.get_user_type_by_id(db, user.user_type_id) is None:
-        add_error(
-            errors=errors,
-            loc=[Location.BODY, "user_type_id"],
-            msg="User Type doesn't exist"
-        )
+@app.post("/users/", response_model=app.database.schemas.users.User, tags=["Users"])
+def create_user(user: app.database.schemas.users.UserCreate, db: Session = Depends(get_db)):
+  """
+  This path operation creates a new user using the crud.create_user() function.
+  :param user: schemas.UserCreate
+  :param db: The database session to use.
+  :return: Created User instance.
+  """
+  errors = []
 
-    if errors:
-        return pydantic_error_response(errors)
+  db_user = crud.get_user_by_email(db, email=user.email)
+  if db_user:
+    add_error(
+      errors=errors,
+      loc=[Location.BODY, "email"],
+      msg="Email already registered"
+    )
 
-    return crud.create_user(db=db, user=user)
+  if crud.get_user_type_by_id(db, user.user_type_id) is None:
+    add_error(
+      errors=errors,
+      loc=[Location.BODY, "user_type_id"],
+      msg="User Type doesn't exist"
+    )
+
+  if errors:
+    return pydantic_error_response(errors)
+
+  return crud.create_user(db=db, user=user)
 ```
 
 - **Decorator**: `@app.post("/users/")` specifies that this function handles HTTP POST requests to the `/users/` URL.
@@ -322,21 +347,24 @@ Here’s the updated documentation based on the new soft delete mechanic for use
 ### 6. **Soft Delete User Endpoint**
 
 ```python
-@app.delete("/users/{user_id}", response_model=schemas.User, tags=["Users"])
+import app.database.schemas.users
+
+
+@app.delete("/users/{user_id}", response_model=app.database.schemas.users.User, tags=["Users"])
 def delete_user(user_id: int, db: Session = Depends(get_db)):
-    """
-    This path operation performs a soft delete on a user by setting the is_active field to False.
-    :param user_id: The ID of the user to soft delete.
-    :param db: The database session to use.
-    :return: The User instance with is_active set to False.
-    """
-    db_user = crud.get_user_by_id(db, user_id=user_id)
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
+  """
+  This path operation performs a soft delete on a user by setting the is_active field to False.
+  :param user_id: The ID of the user to soft delete.
+  :param db: The database session to use.
+  :return: The User instance with is_active set to False.
+  """
+  db_user = crud.get_user_by_id(db, user_id=user_id)
+  if not db_user:
+    raise HTTPException(status_code=404, detail="User not found")
 
-    db_user = crud.soft_delete_user(db, user_id=user_id)
+  db_user = crud.soft_delete_user(db, user_id=user_id)
 
-    return db_user
+  return db_user
 ```
 
 - **Decorator**: `@app.delete("/users/{user_id}")` specifies that this function handles HTTP DELETE requests to the `/users/{user_id}` URL.

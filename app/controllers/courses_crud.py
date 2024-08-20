@@ -1,12 +1,13 @@
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app.database.models import courses as models
+from app.database.schemas import courses as schemas
 
 
 def get_course_by_id(db: Session, course_id: int) -> models.Course:
     """
-    This function queries the database for the Course with the given course_id
+    This function queries the models for the Course with the given course_id
     and returns the Course with the given course_id
-    :param db: The database session
+    :param db: The models session
     :param course_id: Pydantic Course model
     :return: Course with the given course_id
     """
@@ -15,8 +16,8 @@ def get_course_by_id(db: Session, course_id: int) -> models.Course:
 
 def get_course_by_name(db: Session, name: str) -> models.Course:
     """
-    This function queries the database for the Course with the given name
-    :param db: The database session
+    This function queries the models for the Course with the given name
+    :param db: The models session
     :param name: Course name
     :return: Course with given name
     """
@@ -25,9 +26,9 @@ def get_course_by_name(db: Session, name: str) -> models.Course:
 
 def get_courses(db: Session, skip: int = 0, limit: int = 10) -> list[models.Course]:
     """
-    This function queries the database for the Course with the given skip and limit boundaries
+    This function queries the models for the Course with the given skip and limit boundaries
     and returns a list of Courses
-    :param db: The database session
+    :param db: The models session
     :param skip: The starting index of the list, 0 by default
     :param limit: The ending index (skip + limit), 10 by default
     :return: List[Type[models.Course]]:
@@ -38,7 +39,7 @@ def get_courses(db: Session, skip: int = 0, limit: int = 10) -> list[models.Cour
 def create_course(db: Session, course: schemas.CourseCreate) -> models.Course:
     """
     This function creates a new Course based on the given course pydantic model
-    :param db: The database session
+    :param db: The models session
     :param course: Pydantic Course model
     :return: Created Course
     """
