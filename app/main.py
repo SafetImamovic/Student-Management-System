@@ -2,7 +2,8 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from .initial_records import default_users, default_enrollments, default_courses
-from . import crud, models, schemas
+from . import models, schemas
+from .controllers import crud
 from .database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
@@ -316,10 +317,10 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
-@app.delete("/users/{user_id}", response_model=schemas.User, tags=["Users"])
-def delete_user(user_id: int, db: Session = Depends(get_db)):
+@app.put("/users/{user_id}", response_model=schemas.User, tags=["Users"])
+def deactivate_user(user_id: int, db: Session = Depends(get_db)):
     """
-    This path operation performs a soft delete on a user by setting the is_active field to False.
+    This path operation performs a deactivation (soft delete) on a user by setting the is_active field to False.
     :param user_id: The id of the user
     :param db: The database session to use
     :return: The User instance with is_active set to False
@@ -328,13 +329,13 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    db_user = crud.soft_delete_user(db, user_id=user_id)
+    db_user = crud.deactivate_user(db, user_id=user_id)
 
     return db_user
 
 
 @app.put("/users/reactivate/{user_id}", response_model=schemas.User, tags=["Users"])
-def reactivate_user(user_id: int, db: Session = Depends(get_db)):
+def activate_user(user_id: int, db: Session = Depends(get_db)):
     """
     This path operation reactivates a user by setting the is_active field to True.
     :param user_id: The id of the user
@@ -347,7 +348,7 @@ def reactivate_user(user_id: int, db: Session = Depends(get_db)):
     if db_user.is_active:
         raise HTTPException(status_code=400, detail="User is already active")
 
-    db_user = crud.reactivate_user(db, user_id=user_id)
+    db_user = crud.activate_user(db, user_id=user_id)
 
     return db_user
 
@@ -535,27 +536,10 @@ def create_course(course: schemas.CourseCreate, db: Session = Depends(get_db)):
     return crud.create_course(db=db, course=course)
 
 
-# @app.delete('/course/{course_id}', response_model=schemas.Course, tags=["Courses"])
-# def delete_course(course_id: int, db: Session = Depends(get_db)):
-#     """
-#     This path operation deletes a course using the crud.delete_course() function
-#     :param course_id: The id of the course
-#     :param db: The database session to use
-#     :return: The Deleted Course instance
-#     """
-#     db_course = crud.get_course_by_id(db, course_id=course_id)
-#     if not db_course:
-#         raise HTTPException(status_code=404, detail="Course not found")
-#
-#     crud.delete_course(db, course_id=course_id)
-#
-#     return db_course
-
-
-@app.delete("/courses/{course_id}", response_model=schemas.Course, tags=["Courses"])
-def delete_course(course_id: int, db: Session = Depends(get_db)):
+@app.put("/courses/{course_id}", response_model=schemas.Course, tags=["Courses"])
+def deactivate_course(course_id: int, db: Session = Depends(get_db)):
     """
-    This path operation performs a soft delete on a course by setting the is_active field to False.
+    This path operation performs a deactivation (soft delete) on a course by setting the is_active field to False.
     :param course_id: The id of the course
     :param db: The database session to use
     :return: The Course instance with is_active set to False
@@ -564,13 +548,13 @@ def delete_course(course_id: int, db: Session = Depends(get_db)):
     if not db_course:
         raise HTTPException(status_code=404, detail="Course not found")
 
-    db_course = crud.soft_delete_course(db, course_id=course_id)
+    db_course = crud.deactivate_course(db, course_id=course_id)
 
     return db_course
 
 
 @app.put("/courses/reactivate/{course_id}", response_model=schemas.Course, tags=["Courses"])
-def reactivate_course(course_id: int, db: Session = Depends(get_db)):
+def activate_course(course_id: int, db: Session = Depends(get_db)):
     """
     This path operation reactivates a course by setting the is_active field to True.
     :param course_id: The id of the course
@@ -583,7 +567,7 @@ def reactivate_course(course_id: int, db: Session = Depends(get_db)):
     if db_course.is_active:
         raise HTTPException(status_code=400, detail="Course is already active")
 
-    db_course = crud.reactivate_course(db, course_id=course_id)
+    db_course = crud.activate_course(db, course_id=course_id)
 
     return db_course
 
