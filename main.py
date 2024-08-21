@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from app.database.database import SessionLocal, engine
 from app.database.database import Base
 from app.utils.seeding import seed
