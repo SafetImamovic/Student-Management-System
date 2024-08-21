@@ -19,7 +19,7 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(UserBase):
-    hashed_password: Optional[str] = Field(None, min_length=6)
+    hashed_password: Optional[str] = Field(None, min_length=128, max_length=128)
     user_type_id: Optional[int] = None
 
 

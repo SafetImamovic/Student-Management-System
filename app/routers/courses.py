@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import app.database.schemas.courses as schemas
-import app.database.models.courses as models
-from app.controllers import courses_crud as crud
+from app.controllers import courses_controller as crud
 from app.database.database import get_db
 from app.utils import error_responses, enums
 
@@ -16,7 +15,7 @@ def get_courses_count(db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The number of courses in the database
     """
-    return db.query(models.Course).count()
+    return crud.get_courses_count(db)
 
 
 @router.get('/{course_id}', response_model=schemas.Course)

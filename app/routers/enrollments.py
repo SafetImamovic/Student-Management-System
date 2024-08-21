@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import app.database.schemas.enrollments as schemas
-import app.database.models.enrollments as models
-from app.controllers import users_crud, courses_crud, enrollments_crud
+from app.controllers import users_controller, courses_controller, enrollments_controller
 from app.database.database import get_db
 from app.utils import error_responses, enums
 
@@ -16,7 +15,7 @@ def get_enrollments_count(db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The number of enrollments in the database
     """
-    return db.query(models.Enrollment).count()
+    return enrollments_controller.get_enrollments_count(db)
 
 
 @router.get('/{user_id}/{course_id}', response_model=schemas.Enrollment)
@@ -28,7 +27,7 @@ def get_enrollment_by_ids(user_id: int, course_id: int, db: Session = Depends(ge
     :param db: The database session to use
     :return: The Enrollment instance
     """
-    db_enrollment = enrollments_crud.get_enrollment_by_ids(db, user_id=user_id, course_id=course_id)
+    db_enrollment = enrollments_controller.get_enrollment_by_ids(db, user_id=user_id, course_id=course_id)
 
     if not db_enrollment:
         raise HTTPException(status_code=404, detail="Enrollment not found")
@@ -45,7 +44,7 @@ def get_enrollments(skip: int = 0, limit: int = 10, db: Session = Depends(get_db
     :param db: The database session to use
     :return: The list of Enrollments
     """
-    db_enrollments = enrollments_crud.get_enrollments(db, skip=skip, limit=limit)
+    db_enrollments = enrollments_controller.get_enrollments(db, skip=skip, limit=limit)
 
     return db_enrollments
 
@@ -60,7 +59,7 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
     """
     errors = []
 
-    db_exists = enrollments_crud.get_enrollment_by_ids(db, user_id=enrollment.user_id, course_id=enrollment.course_id)
+    db_exists = enrollments_controller.get_enrollment_by_ids(db, user_id=enrollment.user_id, course_id=enrollment.course_id)
     if db_exists:
         error_responses.add_error(
             errors=errors,
@@ -68,7 +67,7 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
             msg="Enrollment already exists"
         )
 
-    db_user = users_crud.get_user_by_id(db, user_id=enrollment.user_id)
+    db_user = users_controller.get_user_by_id(db, user_id=enrollment.user_id)
     if not db_user:
         error_responses.add_error(
             errors=errors,
@@ -76,7 +75,7 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
             msg=f"User not found for User ID: {enrollment.user_id}"
         )
 
-    db_course = courses_crud.get_course_by_id(db, course_id=enrollment.course_id)
+    db_course = courses_controller.get_course_by_id(db, course_id=enrollment.course_id)
     if not db_course:
         error_responses.add_error(
             errors=errors,
@@ -87,5 +86,5 @@ def create_enrollment(enrollment: schemas.EnrollmentCreate, db: Session = Depend
     if errors:
         return error_responses.pydantic_error_response(errors)
 
-    db_enrollment = enrollments_crud.create_enrollment(db, enrollment)
+    db_enrollment = enrollments_controller.create_enrollment(db, enrollment)
     return db_enrollment

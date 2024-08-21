@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import app.database.schemas.user_types as schemas
-import app.database.models.user_types as models
-from app.controllers import user_types_crud as crud
+from app.controllers import user_types_controller as crud
 from app.database.database import get_db
 from app.utils import error_responses, enums
 
@@ -16,7 +15,7 @@ def get_user_types_count(db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The number of user types in the database
     """
-    return db.query(models.UserType).count()
+    return crud.get_user_types_count(db)
 
 
 @router.get('/{user_type_id}', response_model=schemas.UserType)

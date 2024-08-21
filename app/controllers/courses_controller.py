@@ -3,6 +3,15 @@ from app.database.models import courses as models
 from app.database.schemas import courses as schemas
 
 
+def get_courses_count(db: Session) -> int:
+    """
+    This function returns the number of courses in the database
+    :param db:
+    :return:
+    """
+    return db.query(models.Course).count()
+
+
 def get_course_by_id(db: Session, course_id: int) -> models.Course:
     """
     This function queries the models for the Course with the given course_id

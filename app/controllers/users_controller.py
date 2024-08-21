@@ -3,6 +3,15 @@ from app.database.models import users as models
 from app.database.schemas import users as schemas
 
 
+def get_users_count(db: Session) -> int:
+    """
+    This function returns the number of users in the database
+    :param db:
+    :return:
+    """
+    return db.query(models.User).count()
+
+
 def get_user_by_id(db: Session, user_id: int) -> schemas.User:
     """
     This function queries the models for the User with the given user_id

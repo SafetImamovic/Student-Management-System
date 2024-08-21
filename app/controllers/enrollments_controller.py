@@ -3,6 +3,15 @@ from app.database.models import enrollments as models
 from app.database.schemas import enrollments as schemas
 
 
+def get_enrollments_count(db: Session) -> int:
+    """
+    This function returns the number of enrollments in the database
+    :param db:
+    :return:
+    """
+    return db.query(models.Enrollment).count()
+
+
 def get_enrollment_by_ids(db: Session, user_id: int, course_id: int) -> models.Enrollment:
     """
     This function returns the Enrollment based on the given user_id and course_id composite key
@@ -11,7 +20,7 @@ def get_enrollment_by_ids(db: Session, user_id: int, course_id: int) -> models.E
     :return: Enrollment based on the given user_id and course_id composite key
     """
     db_enrollment = db.query(models.Enrollment).filter(models.Enrollment.user_id == user_id,
-                                                         models.Enrollment.course_id == course_id).first()
+                                                       models.Enrollment.course_id == course_id).first()
 
     return db_enrollment
 

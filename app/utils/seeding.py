@@ -29,8 +29,6 @@ def seed_user_types(db: Session):
 
         default_user_types = ['Admin', 'Student']
 
-        # results = []
-
         for user_type in default_user_types:
             db.add(user_types.UserType(name=user_type))
         db.commit()

@@ -3,6 +3,15 @@ from app.database.models import user_types as models
 from app.database.schemas import user_types as schemas
 
 
+def get_user_types_count(db: Session) -> int:
+    """
+    This function returns the number of user_types in the database
+    :param db:
+    :return:
+    """
+    return db.query(models.UserType).count()
+
+
 def get_user_type_by_id(db: Session, user_type_id: int) -> models.UserType:
     """
     This function queries the models for the UserType with the given user_type_id

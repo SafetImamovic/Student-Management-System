@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import app.database.schemas.users as schemas
-import app.database.models.users as models
-from app.controllers import users_crud, user_types_crud
+from app.controllers import users_controller, user_types_controller
 from app.database.database import get_db
 from app.utils import error_responses, enums
 
@@ -16,7 +15,7 @@ def get_users_count(db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The number of users in the database
     """
-    return db.query(models.User).count()
+    return users_controller.get_users_count(db)
 
 
 @router.get('/{user_id}', response_model=schemas.User, tags=["Users"])
@@ -27,7 +26,7 @@ def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The User instance
     """
-    db_user = users_crud.get_user_by_id(db, user_id=user_id)
+    db_user = users_controller.get_user_by_id(db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
@@ -41,7 +40,7 @@ def get_user_by_email(email: str, db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The User instance
     """
-    db_user = users_crud.get_user_by_email(db, email=email)
+    db_user = users_controller.get_user_by_email(db, email=email)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
@@ -56,7 +55,7 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The list of users
     """
-    users = users_crud.get_users(db, skip=skip, limit=limit)
+    users = users_controller.get_users(db, skip=skip, limit=limit)
     return users
 
 
@@ -70,7 +69,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     """
     errors = []
 
-    db_user = users_crud.get_user_by_email(db, email=user.email)
+    db_user = users_controller.get_user_by_email(db, email=user.email)
     if db_user:
         error_responses.add_error(
             errors=errors,
@@ -78,7 +77,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
             msg="Email already registered"
         )
 
-    db_user_type = user_types_crud.get_user_type_by_id(db, user.user_type_id)
+    db_user_type = user_types_controller.get_user_type_by_id(db, user.user_type_id)
     if db_user_type is None:
         error_responses.add_error(
             errors=errors,
@@ -89,7 +88,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if errors:
         return error_responses.pydantic_error_response(errors)
 
-    return users_crud.create_user(db=db, user=user)
+    return users_controller.create_user(db=db, user=user)
 
 
 @router.put("/{user_id}", response_model=schemas.User, tags=["Users"])
@@ -100,11 +99,11 @@ def deactivate_user(user_id: int, db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The User instance with is_active set to False
     """
-    db_user = users_crud.get_user_by_id(db, user_id=user_id)
+    db_user = users_controller.get_user_by_id(db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    db_user = users_crud.deactivate_user(db, user_id=user_id)
+    db_user = users_controller.deactivate_user(db, user_id=user_id)
 
     return db_user
 
@@ -117,12 +116,12 @@ def activate_user(user_id: int, db: Session = Depends(get_db)):
     :param db: The database session to use
     :return: The reactivated User instance
     """
-    db_user = users_crud.get_user_by_id(db, user_id=user_id)
+    db_user = users_controller.get_user_by_id(db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     if db_user.is_active:
         raise HTTPException(status_code=400, detail="User is already active")
 
-    db_user = users_crud.activate_user(db, user_id=user_id)
+    db_user = users_controller.activate_user(db, user_id=user_id)
 
     return db_user
