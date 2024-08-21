@@ -71,8 +71,9 @@ In this case, it's:
 Then inside the `env.py` file, the following configuration is set:
 
 ```python
-from app.database import Base
-from app.models import *
+from app.database.database import Base
+from app.database import *
+
 ...
 target_metadata = Base.metadata
 ...

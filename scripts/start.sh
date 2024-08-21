@@ -38,7 +38,7 @@ script_dir=$(dirname "$(realpath "$0")")
 cd "$script_dir" || exit
 
 echo "Running docker-compose up..."
-docker-compose up -d
+docker-compose up --build -d
 
 containers=("student-management-system-db-server" "student-management-system-api")
 

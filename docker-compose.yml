@@ -1,9 +1,9 @@
 services:
   postgres:
     image: postgres
+    env_file:
+      - .env
     container_name: student-management-system-db-server
-    environment:
-      POSTGRES_PASSWORD: admin
     networks:
       - student-management-system-network
     ports:
@@ -13,13 +13,24 @@ services:
 
   api:
     build: .
+    env_file:
+      - .env
     container_name: student-management-system-api
     networks:
       - student-management-system-network
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/usr/src/app/app
+      - .:/usr/src
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
 
 volumes:
   psqldata:
