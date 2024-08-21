@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from app.database.database import SessionLocal, engine
 from app.database.database import Base
 from app.utils.seeding import seed
@@ -27,12 +27,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# TODO: Implement a better way for versioning
+prefix = "/api/v0"
+
 # Register routers
-app.include_router(users.router)
-app.include_router(user_types.router)
-app.include_router(courses.router)
-app.include_router(enrollments.router)
-app.include_router(utility.router)
+app.include_router(users.router, prefix=prefix)
+app.include_router(user_types.router, prefix=prefix)
+app.include_router(courses.router, prefix=prefix)
+app.include_router(enrollments.router, prefix=prefix)
+app.include_router(utility.router, prefix=prefix)
 
 
 @app.on_event("startup")
