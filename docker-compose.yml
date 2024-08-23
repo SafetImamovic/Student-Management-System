@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres
     env_file:
-      - .env
+      - .env.docker
     container_name: student-management-system-db-server
     networks:
       - student-management-system-network
@@ -13,8 +13,11 @@ services:
 
   api:
     build: .
+    depends_on:
+      postgres:
+        condition: service_started
     env_file:
-      - .env
+      - .env.docker
     container_name: student-management-system-api
     networks:
       - student-management-system-network
