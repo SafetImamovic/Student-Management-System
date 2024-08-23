@@ -1,18 +1,16 @@
 import os
 from logging.config import fileConfig
 
+from alembic import context
+from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
-from alembic import context
 
 from app.database.database import Base
 from app.database.models.user_types import UserType
 from app.database.models.users import User
 from app.database.models.courses import Course
 from app.database.models.enrollments import Enrollment
-
-from dotenv import load_dotenv
 
 load_dotenv()
 

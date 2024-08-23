@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-from app.controllers.utility_controller import UtilityController, seed
-from app.database.database import SessionLocal, engine
-from app.database.database import Base
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.controllers.utility_controller import UtilityController, seed
+from app.database.database import Base
+from app.database.database import SessionLocal, engine
 from app.routers import users, user_types, courses, enrollments, utility
 
 # Create the database tables
