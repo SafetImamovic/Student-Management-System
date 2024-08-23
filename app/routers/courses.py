@@ -36,7 +36,7 @@ def get_count(
 
     },
     response_model=CourseSchema)
-def get_course_by_id(
+def get_by_id(
     course_id: int,
     controller: Annotated[CourseController, Depends(CourseController)]
 ):
@@ -62,7 +62,7 @@ def get_course_by_id(
     },
     response_model=CourseSchema
 )
-def get_course_by_name(
+def get_by_name(
     name: str,
     controller: Annotated[CourseController, Depends(CourseController)]
 ):
@@ -88,7 +88,7 @@ def get_course_by_name(
     },
     response_model=list[CourseSchema]
 )
-def read_courses(
+def get_all(
     controller: Annotated[CourseController, Depends(CourseController)],
     skip: int = 0,
     limit: int = 10,
@@ -113,7 +113,7 @@ def read_courses(
     },
     response_model=CourseSchema
 )
-def create_course(
+def create(
     course: CourseCreateSchema,
     controller: Annotated[CourseController, Depends(CourseController)]
 ):
@@ -148,7 +148,7 @@ def create_course(
     },
     response_model=CourseSchema
 )
-def deactivate_course(
+def deactivate(
     course_id: int,
     controller: Annotated[CourseController, Depends(CourseController)]
 ):
@@ -173,7 +173,7 @@ def deactivate_course(
     "/reactivate/{course_id}",
     response_model=CourseSchema
 )
-def activate_course(
+def activate(
     course_id: int,
     controller: Annotated[CourseController, Depends(CourseController)]
 ):

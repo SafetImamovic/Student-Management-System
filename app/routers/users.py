@@ -20,7 +20,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
     },
     response_model=int
 )
-def get_users_count(
+def get_count(
     controller: Annotated[UserController, Depends(UserController)]
 ):
     """
@@ -39,7 +39,7 @@ def get_users_count(
     },
     response_model=UserSchema,
 )
-def get_user_by_id(
+def get_by_id(
     user_id: int,
     controller: Annotated[UserController, Depends(UserController)]
 ):
@@ -65,7 +65,7 @@ def get_user_by_id(
     },
     response_model=UserSchema
 )
-def get_user_by_email(
+def get_by_email(
     email: str,
     controller: Annotated[UserController, Depends(UserController)]
 ):
@@ -91,7 +91,7 @@ def get_user_by_email(
     },
     response_model=list[UserSchema]
 )
-def read_users(
+def get_all(
     controller: Annotated[UserController, Depends(UserController)],
     skip: int = 0,
     limit: int = 10,
@@ -116,7 +116,7 @@ def read_users(
     },
     response_model=UserSchema,
 )
-def create_user(
+def create(
     user: UserCreateSchema,
     user_controller: Annotated[UserController, Depends(UserController)],
     user_type_controller: Annotated[UserTypeController, Depends(UserTypeController)]
@@ -162,7 +162,7 @@ def create_user(
     },
     response_model=UserSchema,
 )
-def deactivate_user(
+def deactivate(
     user_id: int,
     controller: Annotated[UserController, Depends(UserController)]
 ):
@@ -190,7 +190,7 @@ def deactivate_user(
     },
     response_model=UserSchema,
 )
-def activate_user(
+def activate(
     user_id: int,
     controller: Annotated[UserController, Depends(UserController)]
 ):

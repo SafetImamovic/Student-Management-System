@@ -18,7 +18,7 @@ router = APIRouter(prefix="/enrollments", tags=["Enrollments"])
     },
     response_model=int
 )
-def get_enrollments_count(
+def get_count(
     controller: Annotated[EnrollmentController, Depends(EnrollmentController)]
 ):
     """
@@ -35,7 +35,7 @@ def get_enrollments_count(
 
     },
     response_model=schemas.Enrollment)
-def get_enrollment_by_ids(
+def get_by_id(
     user_id: int,
     course_id: int,
     controller: Annotated[EnrollmentController, Depends(EnrollmentController)]
@@ -62,7 +62,7 @@ def get_enrollment_by_ids(
 
     },
     response_model=list[schemas.Enrollment])
-def get_enrollments(
+def get_all(
     controller: Annotated[EnrollmentController, Depends(EnrollmentController)],
     skip: int = 0,
     limit: int = 10
@@ -84,7 +84,7 @@ def get_enrollments(
     '/',
     response_model=schemas.Enrollment
 )
-def create_enrollment(
+def create(
     enrollment: schemas.EnrollmentCreate,
     user_controller: Annotated[UserController, Depends(UserController)],
     course_controller: Annotated[CourseController, Depends(CourseController)],

@@ -19,7 +19,7 @@ router = APIRouter(prefix="/user_types", tags=["User Types"])
     },
     response_model=int
 )
-def get_user_types_count(
+def get_count(
     controller: Annotated[UserTypeController, Depends(UserTypeController)]
 ):
     """
@@ -37,7 +37,7 @@ def get_user_types_count(
 
     },
     response_model=UserTypeSchema)
-def get_user_types(
+def get_all(
     user_type_id: int,
     controller: Annotated[UserTypeController, Depends(UserTypeController)]
 ):
@@ -63,7 +63,7 @@ def get_user_types(
     },
     response_model=UserTypeSchema
 )
-def get_user_type_by_name(
+def get_by_name(
     name: str,
     controller: Annotated[UserTypeController, Depends(UserTypeController)]
 ):
@@ -90,7 +90,7 @@ def get_user_type_by_name(
     },
     response_model=list[UserTypeSchema]
 )
-def get_users(
+def get_all(
     controller: Annotated[UserTypeController, Depends(UserTypeController)],
     skip: int = 0,
     limit: int = 10
@@ -112,7 +112,7 @@ def get_users(
     '/',
     response_model=UserTypeCreateSchema
 )
-def create_user_type(
+def create(
     user_type: UserTypeCreateSchema,
     controller: Annotated[UserTypeController, Depends(UserTypeController)]
 ):
@@ -149,7 +149,7 @@ def create_user_type(
     },
     response_model=UserTypeSchema
 )
-def delete_user_type(
+def delete(
     user_type_id: int,
     controller: Annotated[UserTypeController, Depends(UserTypeController)]
 ):

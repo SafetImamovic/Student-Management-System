@@ -1,5 +1,5 @@
 from app.controllers.base_controller import BaseController
-from app.database.models import user_types as models
+from app.database.models.user_types import UserType
 from app.database.schemas.user_types import (
     UserType as UserTypeSchema,
     UserTypeCreate as UserTypeCreateSchema
@@ -7,13 +7,13 @@ from app.database.schemas.user_types import (
 
 
 class UserTypeController(BaseController):
-
     def get_count(self) -> int:
         """
         This function returns the number of user_types in the database
         :return:
         """
-        return self.session.query(models.UserType).count()
+
+        return self.session.query(UserType).count()
 
     def get_by_id(self, user_type_id: int) -> UserTypeSchema:
         """
@@ -21,7 +21,8 @@ class UserTypeController(BaseController):
         :param user_type_id: The user_type_id
         :return: The UserType with the given user_type_id
         """
-        return self.session.query(models.UserType).filter(models.UserType.user_type_id == user_type_id).first()
+
+        return self.session.query(UserType).filter(UserType.user_type_id == user_type_id).first()
 
     def get_by_name(self, name: str) -> UserTypeSchema:
         """
@@ -29,7 +30,8 @@ class UserTypeController(BaseController):
         :param name: The user_type_name
         :return: The UserType with the given name
         """
-        return self.session.query(models.UserType).filter(models.UserType.name == name).first()
+
+        return self.session.query(UserType).filter(UserType.name == name).first()
 
     def get_all(self, skip: int = 0, limit: int = 10) -> list[UserTypeSchema]:
         """
@@ -39,7 +41,8 @@ class UserTypeController(BaseController):
         :param limit: Ending index (skip + limit), 10 by default
         :return: List[Type[models.UserType]]:
         """
-        return self.session.query(models.UserType).offset(skip).limit(limit).all()
+
+        return self.session.query(UserType).offset(skip).limit(limit).all()
 
     def create(self, user_type: UserTypeCreateSchema) -> UserTypeSchema:
         """
@@ -47,12 +50,17 @@ class UserTypeController(BaseController):
         :param user_type: schemas.UserTypeCreate
         :return: The created UserType
         """
-        db_user_type = models.UserType(
+
+        db_user_type = UserType(
             **user_type.dict()
         )
+
         self.session.add(db_user_type)
+
         self.session.commit()
+
         self.session.refresh(db_user_type)
+
         return db_user_type
 
     def delete(self, user_type_id: int) -> UserTypeSchema:
@@ -62,7 +70,10 @@ class UserTypeController(BaseController):
         :return: Deleted UserType
         """
 
-        db_user_type = self.session.query(models.UserType).filter(models.UserType.user_type_id == user_type_id).first()
+        db_user_type = self.session.query(UserType).filter(UserType.user_type_id == user_type_id).first()
+
         self.session.delete(db_user_type)
+
         self.session.commit()
+
         return db_user_type
