@@ -1,5 +1,6 @@
-from sqlalchemy import text, create_engine, Engine
 import sys
+
+from sqlalchemy import text, create_engine, Engine
 
 
 def check_and_create_database(DB_USER: str, DB_PASS: str, DB_HOST: str, DB_PORT: str, DB_NAME: str) -> Engine:
@@ -31,25 +32,33 @@ def check_and_create_database(DB_USER: str, DB_PASS: str, DB_HOST: str, DB_PORT:
     :param DB_NAME:
     :return: Engine
     """
+
     default_database_url = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/"
+
     default_engine = create_engine(default_database_url, isolation_level="AUTOCOMMIT")
 
     try:
         with default_engine.connect() as connection:
             result = connection.execute(text(f"SELECT 1 FROM pg_database WHERE datname='{DB_NAME}';"))
+
             exists = result.scalar() is not None
 
             if not exists:
                 print(f"Database '{DB_NAME}' does not exist. Creating...")
+
                 connection.execute(text(f"CREATE DATABASE {DB_NAME};"))
 
                 print(f"Database '{DB_NAME}' created successfully.")
+
             else:
                 print(f"Database '{DB_NAME}' already exists.")
 
         return create_engine(default_database_url + DB_NAME)
+
     except Exception as e:
         print(f"An error occurred while checking or creating the database: {e}")
+
         sys.exit(1)
+
     finally:
         default_engine.dispose(True)

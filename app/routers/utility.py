@@ -1,26 +1,47 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy import text
-from app.database.database import get_db
-from app.utils import seeding
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
+
+from app.controllers.utility_controller import UtilityController, seed
 
 router = APIRouter()
 
 
-@router.delete('/truncate_db/', tags=["TRUNCATE DATABASE"])
-def truncate_db(db: Session = Depends(get_db)):
-    truncate_sql = text("truncate user_types, users, courses, enrollments;")
-    result = db.execute(truncate_sql)
-    db.commit()
-    return result
+@router.delete(
+    '/truncate_db/',
+    responses={
+
+    },
+    response_model=None,
+    tags=["TRUNCATE DATABASE"]
+)
+def truncate_db(
+    controller: Annotated[UtilityController, Depends(UtilityController)]
+):
+    """
+    :param controller:
+    :return:
+    """
+
+    # TODO: Better logging
+    controller.truncate()
 
 
-@router.post('/re_seed_db/', tags=["RE-SEED DATABASE"])
-def re_seed_database(db: Session = Depends(get_db)):
+@router.post(
+    '/re_seed_db/',
+    responses={
+
+    },
+    response_model=None,
+    tags=["RE-SEED DATABASE"]
+)
+def re_seed_database(
+    controller: Annotated[UtilityController, Depends(UtilityController)]
+):
     """
     This function re-seeds some tables in the database based on the default values
-    :param db: The database to re-seed
+    :param controller:
     :return: The re-seeded database
     """
-    seeding.seed(db)
 
+    seed(controller)

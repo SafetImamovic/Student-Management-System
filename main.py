@@ -1,7 +1,7 @@
 from fastapi import FastAPI
+from app.controllers.utility_controller import UtilityController, seed
 from app.database.database import SessionLocal, engine
 from app.database.database import Base
-from app.utils.seeding import seed
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import users, user_types, courses, enrollments, utility
 
@@ -24,7 +24,7 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
 # TODO: Implement a better way for versioning
@@ -42,10 +42,6 @@ app.include_router(utility.router, prefix=prefix)
 def on_startup():
     """On server startup, seed the database."""
     db = SessionLocal()
-    seed(db)
+    uc = UtilityController(db);
+    seed(uc)
     db.close()
-
-
-@app.get("/", tags=["Root"])
-def read_root():
-    return {"Hello": "World!"}

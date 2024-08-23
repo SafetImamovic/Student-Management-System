@@ -1,8 +1,10 @@
 import os
-from sqlalchemy import create_engine, Engine
+
+from dotenv import load_dotenv
+from sqlalchemy import Engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
-from dotenv import load_dotenv
+
 from .check_and_create_db import check_and_create_database
 
 load_dotenv()

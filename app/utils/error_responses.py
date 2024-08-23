@@ -1,4 +1,5 @@
 from fastapi.responses import JSONResponse
+
 from app.utils.enums import ErrorType, Location
 
 
