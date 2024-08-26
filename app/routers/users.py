@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 from app.controllers.user_types_controller import UserTypeController
 from app.controllers.users_controller import UserController
@@ -92,19 +93,32 @@ def get_by_email(
     response_model=list[UserSchema]
 )
 def get_all(
-    controller: Annotated[UserController, Depends(UserController)],
+    user_controller: Annotated[UserController, Depends(UserController)],
+    user_type_controller: Annotated[UserTypeController, Depends(UserTypeController)],
+    user_type_id: int = None,
     skip: int = 0,
-    limit: int = 10,
+    limit: int = 10
 ):
     """
-    This path operation returns a list of users using the crud.get_users() function
-    :param controller:
-    :param skip: The number of items to skip at the beginning of the list
-    :param limit: The maximum number of items to return
-    :return: The list of users
-    """
+    Path operation which returns all the users in the database.
 
-    users = controller.get_all(skip=skip, limit=limit)
+    It has skip and limit query parameters.
+
+    It has user_type_id query parameter which returns all users which match that user_type_id.
+
+    :param user_controller:
+    :param user_type_controller:
+    :param user_type_id:
+    :param skip:
+    :param limit:
+    :return:
+    """
+    db_user_type = user_type_controller.get_by_id(user_type_id=user_type_id)
+
+    if not db_user_type and user_type_id is not None:
+        raise HTTPException(status_code=404, detail="User Type not found")
+
+    users = user_controller.get_all(skip=skip, limit=limit, user_type_id=user_type_id)
 
     return users
 
@@ -184,7 +198,7 @@ def deactivate(
 
 
 @router.put(
-    "/users/reactivate/{user_id}",
+    "/activate/{user_id}",
     responses={
 
     },
