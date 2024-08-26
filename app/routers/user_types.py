@@ -110,7 +110,7 @@ def get_all(
 
 @router.post(
     '/',
-    response_model=UserTypeCreateSchema
+    response_model=UserTypeSchema
 )
 def create(
     user_type: UserTypeCreateSchema,

@@ -170,7 +170,7 @@ def deactivate(
 
 
 @router.put(
-    "/reactivate/{course_id}",
+    "/activate/{course_id}",
     response_model=CourseSchema
 )
 def activate(
