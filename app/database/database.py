@@ -9,13 +9,13 @@ from .check_and_create_db import check_and_create_database
 
 load_dotenv()
 
-DB_HOST = os.getenv("POSTGRES_HOST")
-DB_PORT = os.getenv("POSTGRES_PORT")
-DB_USER = os.getenv("POSTGRES_USER")
-DB_PASS = os.getenv("POSTGRES_PASSWORD")
-DB_NAME = os.getenv("POSTGRES_NAME")
+db_host = os.getenv("POSTGRES_HOST")
+db_port = os.getenv("POSTGRES_PORT")
+db_user = os.getenv("POSTGRES_USER")
+db_pass = os.getenv("POSTGRES_PASSWORD")
+db_name = os.getenv("POSTGRES_NAME")
 
-engine: Engine = check_and_create_database(DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME)
+engine: Engine = check_and_create_database(db_user, db_pass, db_host, db_port, db_name)
 
 SessionLocal: Session = sessionmaker(bind=engine)
 
