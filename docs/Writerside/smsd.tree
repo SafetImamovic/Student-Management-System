@@ -25,5 +25,8 @@
             <toc-element topic="5-Simple-Frontend.md"/>
             <toc-element topic="6-Setting-Up-UserType-Enum.md"/>
         </toc-element>
+        <toc-element topic="Week-3.md">
+            <toc-element topic="1-API-Versioning.md"/>
+        </toc-element>
     </toc-element>
 </instance-profile>

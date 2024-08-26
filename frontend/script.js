@@ -1,4 +1,4 @@
-url_address = "http://localhost:8000/"
+url_address = "http://localhost:8000/api/v0/";
 
 // -------------------------------------------------------------------------------------------------
 // Different Routes

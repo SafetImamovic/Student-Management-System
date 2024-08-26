@@ -1,8 +1,9 @@
 from fastapi import FastAPI
-from app.database.database import SessionLocal, engine
-from app.database.database import Base
-from app.utils.seeding import seed
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.controllers.utility_controller import UtilityController, seed
+from app.database.database import Base
+from app.database.database import SessionLocal, engine
 from app.routers import users, user_types, courses, enrollments, utility
 
 # Create the database tables
@@ -24,25 +25,24 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
+# TODO: Implement a better way for versioning
+prefix = "/api/v0"
+
 # Register routers
-app.include_router(users.router)
-app.include_router(user_types.router)
-app.include_router(courses.router)
-app.include_router(enrollments.router)
-app.include_router(utility.router)
+app.include_router(users.router, prefix=prefix)
+app.include_router(user_types.router, prefix=prefix)
+app.include_router(courses.router, prefix=prefix)
+app.include_router(enrollments.router, prefix=prefix)
+app.include_router(utility.router, prefix=prefix)
 
 
 @app.on_event("startup")
 def on_startup():
     """On server startup, seed the database."""
     db = SessionLocal()
-    seed(db)
+    uc = UtilityController(db);
+    seed(uc)
     db.close()
-
-
-@app.get("/", tags=["Root"])
-def read_root():
-    return {"Hello": "World!"}

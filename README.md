@@ -4,27 +4,34 @@
 
 ## Quick Setup
 
-This project uses Docker to run FastAPI and PostgreSQL in separate containers.
+To run the application, follow these steps:
 
-It also runs a vanilla html, css and js frontend container.
+1. **Clone the repository:**
 
-### FastAPI & PostgreSQL
+   ```bash
+   git clone https://github.com/SafetImamovic/Student-Management-System
+   ```
+   
+2. Create the appropriate `.env` and `.env.docker` files as explained in [Environment Variables](#environment-variables).
 
-To run the FastAPI, PostgreSQL & Frontend containers run the following command in the project root:
 
-```Bash
-./scripts/start
-```
+3. **Start the Docker containers:**
 
-This script will create a shared network, build the FastAPI and Frontend image, start the FastAPI, PostgreSQL & Frontend containers, and output the container logs.
+   ```bash
+   ./scripts/start
+   ```
 
-After successful builds, running `docker ps` should show the active containers.
+4. **Verify that the containers are running:**
 
-Then visiting `http://localhost:8000/` in a browser will result with the html body of:
+   ```bash
+   docker ps
+   ```
 
-```Bash
-{"Hello": "World"}
-```
+5. **Access the application in your browser:**
+
+   - Backend: [http://localhost:8000/](http://localhost:8000/)
+   - Frontend: [http://localhost:80/](http://localhost:80/)
+
 
 And visiting `http://localhost:80/` in a browser will result in the Frontend Website:
 
@@ -72,6 +79,69 @@ For some more options when it comes to handling the client container and network
 > To see how they work.
 
 [_More details on setting up Docker, Dockerfile and Docker Compose can be found here_](https://safetimamovic.github.io/Student-Management-System/docker.html)
+
+
+### Environment Variables
+
+These are examples of the environment variables required to run the application locally.
+You should replace `password`, `localhost`, and other values with the appropriate details for your setup.
+
+### Example `.env` File
+
+Create a file named `.env` in the root of the project with the following content:
+
+```env
+POSTGRES_HOST="localhost"
+POSTGRES_PORT="5432" # by default
+POSTGRES_USER="postgres" # by default
+POSTGRES_PASSWORD=password
+POSTGRES_NAME="student_management_system_db" # by default
+```
+
+### Example `.env.docker` File
+
+Create a file named `.env.docker` in the root of the project with the following content:
+
+```env
+POSTGRES_HOST=host
+POSTGRES_PORT="5432" # by default
+POSTGRES_USER="postgres" # by default
+POSTGRES_PASSWORD=password
+POSTGRES_NAME="student_management_system_db" # by default
+```
+
+Main difference between these 2 .env files is the `POSTGRES_HOST`.
+- In `.env` the host should be 'localhost'.
+- In `.env.docker` the host should be the container name.
+
+
+### `.env` vs. `.env.docker` for SQLAlchemy URL
+
+> The default database name is `student_management_system_db`.
+
+> If you're running the Docker containers using `./scripts/start.sh`, this will run `docker compose up --build` with `student-management-system-db-server`
+> being the default name for the Database container.
+>
+> With this in mind:
+
+- **`.env` File:**
+  - **Path:** The `.env` file is configured for local development where the database is accessed directly from your local machine.
+  - **SQLAlchemy URL:**
+    ```plaintext
+    SQL_ALCHEMY_URL=postgresql://postgres:password@localhost:5432/student_management_system_db
+    ```
+    - **Explanation:** The database is hosted on the local machine (`localhost`), and the application connects to it directly.
+
+- **`.env.docker` File:**
+  - **Path:** The `.env.docker` file is configured for a Docker environment where the database is running within a Docker container.
+  - **SQLAlchemy URL:** docker ps
+  - 
+    ```plaintext
+    SQL_ALCHEMY_URL=postgresql://postgres:password@student-management-system-db-server:5432/student_management_system_db
+    ```
+    - **Explanation:** In a Docker setup, the database container is named `postgres`, so the application connects to it using the container name as the host.
+
+
 
 ## Objective
 

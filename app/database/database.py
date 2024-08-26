@@ -1,20 +1,25 @@
 import os
 
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
 from dotenv import load_dotenv
+from sqlalchemy import Engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
+
+from .check_and_create_db import check_and_create_database
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.getenv('SQL_ALCHEMY_URL')
+db_host = os.getenv("POSTGRES_HOST")
+db_port = os.getenv("POSTGRES_PORT")
+db_user = os.getenv("POSTGRES_USER")
+db_pass = os.getenv("POSTGRES_PASSWORD")
+db_name = os.getenv("POSTGRES_NAME")
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine: Engine = check_and_create_database(db_user, db_pass, db_host, db_port, db_name)
 
-SessionLocal = sessionmaker(bind=engine)
+SessionLocal: Session = sessionmaker(bind=engine)
 
-Base = declarative_base()
+Base: DeclarativeBase = declarative_base()
 
 
 # Dependency
