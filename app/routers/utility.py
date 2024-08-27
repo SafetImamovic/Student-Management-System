@@ -1,5 +1,7 @@
 from typing import Annotated
 
+from sqlalchemy.engine.result import Result
+
 from fastapi import APIRouter, Depends
 
 from app.controllers.utility_controller import UtilityController, seed
@@ -24,7 +26,10 @@ def truncate_db(
     """
 
     # TODO: Better logging
-    controller.truncate()
+    result: Result = controller.truncate()
+
+    if result:
+        return {"msg": "Database Tables truncated successfully."}
 
 
 @router.post(
@@ -45,3 +50,5 @@ def re_seed_database(
     """
 
     seed(controller)
+
+    return {"msg": "Database Tables re-seeded successfully."}
