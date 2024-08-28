@@ -7,6 +7,7 @@ from app.controllers.courses_controller import CourseController
 from app.controllers.enrollments_controller import EnrollmentController
 from app.controllers.users_controller import UserController
 from app.utils import error_responses, enums
+from app.database.schemas.enrollments import Enrollment
 
 router = APIRouter(prefix="/enrollments", tags=["Enrollments"])
 
@@ -134,3 +135,37 @@ def create(
     db_enrollment = enrollment_controller.create(enrollment)
 
     return db_enrollment
+
+
+@router.delete(
+    '/{user_id}/{course_id}',
+    response_model=schemas.Enrollment
+)
+def delete(
+    user_id: int,
+    course_id: int,
+    controller: Annotated[EnrollmentController, Depends(EnrollmentController)]
+) -> Enrollment:
+    """
+    This path operation deletes an Enrollment based on the user_id and course_id composite key
+    :param user_id:
+    :param course_id:
+    :param controller:
+    :return:
+    """
+
+    errors = []
+
+    db_enrollment = controller.get_by_id(user_id=user_id, course_id=course_id)
+
+    if not db_enrollment:
+        error_responses.add_error(
+            errors=errors,
+            loc=[enums.Location.BODY, "user_id", "course_id"],
+            msg="Enrollment not found."
+        )
+
+    if errors:
+        return error_responses.pydantic_error_response(errors)
+
+    return controller.delete(user_id, course_id)

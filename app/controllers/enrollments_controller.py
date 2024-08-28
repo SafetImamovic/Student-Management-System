@@ -16,7 +16,7 @@ class EnrollmentController(BaseController):
 
         return self.session.query(Enrollment).count()
 
-    def get_by_id(self, user_id: int, course_id: int) -> EnrollmentSchema:
+    def get_by_id(self, user_id: int, course_id: int):
         """
         This function returns the Enrollment based on the given user_id and course_id composite key
         :param user_id: The user id
@@ -59,16 +59,15 @@ class EnrollmentController(BaseController):
 
         return db_enrollment
 
-    def delete_enrollment(self, enrollment_id: int) -> EnrollmentSchema:
+    def delete(self, user_id: int, course_id) -> EnrollmentSchema:
         """
-        This function deletes a Enrollment based on the given enrollment_id
-        :param db: The models session
-        :param enrollment_id: The given enrollment_id
-        :return: The deleted Enrollment instance
+        This function deletes an Enrollment based on the given user_id and course_id composite key
+        :param user_id:
+        :param course_id:
+        :return:
         """
 
-        db_enrollment = self.session.query(Enrollment).filter(
-            Enrollment.enrollment_id == enrollment_id).first()
+        db_enrollment = self.get_by_id(user_id, course_id)
 
         self.session.delete(db_enrollment)
 

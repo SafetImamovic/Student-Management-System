@@ -5,6 +5,8 @@ from app.database.schemas.users import (
     UserCreate as UserCreateSchema
 )
 
+from app.controllers.user_types_controller import UserTypeController
+
 
 class UserController(BaseController):
     def get_count(self) -> int:
@@ -35,14 +37,24 @@ class UserController(BaseController):
 
         return self.session.query(User).filter(User.email == email).first()
 
-    def get_all(self, skip: int = 0, limit: int = 10) -> list[UserSchema]:
+    def get_all(self, user_type_id: int = None, skip: int = 0, limit: int = 10) -> list[UserSchema]:
         """
         This method queries the models for Users with the given skip and limit boundaries
         and returns a list of Users
-        :param skip: Starting index of the list, 0 by default
-        :param limit: Ending index (skip + limit), 10 by default
-        :return List[Type[models.User]]:
+        :param skip:
+        :param limit:
+        :param user_type_id:
+        :return:
         """
+
+        if user_type_id is not None:
+            return (
+                self.session.query(User)
+                .filter(User.user_type_id == user_type_id)
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
 
         return self.session.query(User).offset(skip).limit(limit).all()
 

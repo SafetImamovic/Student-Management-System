@@ -1,3 +1,6 @@
+from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
+
 from app.controllers.base_controller import BaseController
 from app.database.models.user_types import UserType
 from app.database.schemas.user_types import (
@@ -72,8 +75,15 @@ class UserTypeController(BaseController):
 
         db_user_type = self.session.query(UserType).filter(UserType.user_type_id == user_type_id).first()
 
-        self.session.delete(db_user_type)
+        if not db_user_type:
+            raise HTTPException(status_code=404, detail="User type not found")
 
-        self.session.commit()
+        try:
+            self.session.delete(db_user_type)
+            self.session.commit()
+
+        except IntegrityError as e:
+            self.session.rollback()
+            raise HTTPException(status_code=400, detail=f"Cannot delete user type as it is referenced by other records. You can send a GET request to the relative path /users?user_type_id={user_type_id} to list all users that match the user_type_id.")
 
         return db_user_type

@@ -51,7 +51,7 @@ def get_all(
     db_user_type = controller.get_by_id(user_type_id=user_type_id)
 
     if not db_user_type:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User Type not found")
 
     return db_user_type
 
@@ -110,7 +110,7 @@ def get_all(
 
 @router.post(
     '/',
-    response_model=UserTypeCreateSchema
+    response_model=UserTypeSchema
 )
 def create(
     user_type: UserTypeCreateSchema,
@@ -152,7 +152,7 @@ def create(
 def delete(
     user_type_id: int,
     controller: Annotated[UserTypeController, Depends(UserTypeController)]
-):
+) -> UserTypeSchema:
     """
     This path operation deletes a user type using the crud.delete_user_type() function
     :param controller:
@@ -160,11 +160,4 @@ def delete(
     :return: Deleted user type
     """
 
-    db_user_type = controller.get_by_id(user_type_id=user_type_id)
-
-    if not db_user_type:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    controller.delete(user_type_id=user_type_id)
-
-    return db_user_type
+    return controller.delete(user_type_id=user_type_id)
