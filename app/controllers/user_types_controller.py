@@ -36,7 +36,7 @@ class UserTypeController(BaseController):
         :return: The UserType with the given name
         """
 
-        return self.session.query(UserType).filter(UserType.name == name).first()
+        return UserTypesService.get_by_name(self.session, name)
 
     def get_all(self, skip: int = 0, limit: int = 10) -> list[UserTypeSchema]:
         """
@@ -47,7 +47,7 @@ class UserTypeController(BaseController):
         :return: List[Type[models.UserType]]:
         """
 
-        return self.session.query(UserType).offset(skip).limit(limit).all()
+        return UserTypesService.get_all(self.session, skip, limit)
 
     def create(self, user_type: UserTypeCreateSchema) -> UserTypeSchema:
         """
@@ -56,17 +56,7 @@ class UserTypeController(BaseController):
         :return: The created UserType
         """
 
-        db_user_type = UserType(
-            **user_type.dict()
-        )
-
-        self.session.add(db_user_type)
-
-        self.session.commit()
-
-        self.session.refresh(db_user_type)
-
-        return db_user_type
+        return UserTypesService.create(self.session, user_type)
 
     def delete(self, user_type_id: int) -> UserTypeSchema:
         """
@@ -75,17 +65,4 @@ class UserTypeController(BaseController):
         :return: Deleted UserType
         """
 
-        db_user_type = self.session.query(UserType).filter(UserType.user_type_id == user_type_id).first()
-
-        if not db_user_type:
-            raise HTTPException(status_code=404, detail="User type not found")
-
-        try:
-            self.session.delete(db_user_type)
-            self.session.commit()
-
-        except IntegrityError as e:
-            self.session.rollback()
-            raise HTTPException(status_code=400, detail=f"Cannot delete user type as it is referenced by other records. You can send a GET request to the relative path /users?user_type_id={user_type_id} to list all users that match the user_type_id.")
-
-        return db_user_type
+        return UserTypesService.delete(self.session, user_type_id)

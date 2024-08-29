@@ -37,7 +37,7 @@ def get_count(
 
     },
     response_model=UserTypeSchema)
-def get_all(
+def get_by_id(
     user_type_id: int,
     controller: Annotated[UserTypeController, Depends(UserTypeController)]
 ):
@@ -48,12 +48,7 @@ def get_all(
     :return: The UserType instance
     """
 
-    db_user_type = controller.get_by_id(user_type_id=user_type_id)
-
-    if not db_user_type:
-        raise HTTPException(status_code=404, detail="User Type not found")
-
-    return db_user_type
+    return controller.get_by_id(user_type_id)
 
 
 @router.get(
@@ -75,12 +70,7 @@ def get_by_name(
     :return: The UserType instance
     """
 
-    db_user_type = controller.get_by_name(name=name)
-
-    if not db_user_type:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return db_user_type
+    return controller.get_by_name(name)
 
 
 @router.get(
@@ -103,9 +93,7 @@ def get_all(
     :return: The list of user types
     """
 
-    user_types = controller.get_all(skip=skip, limit=limit)
-
-    return user_types
+    return controller.get_all(skip=skip, limit=limit)
 
 
 @router.post(
@@ -123,23 +111,7 @@ def create(
     :return: The created user type.
     """
 
-    errors = []
-
-    db_user_type = controller.get_by_name(name=user_type.name)
-
-    if db_user_type:
-        error_responses.add_error(
-            errors=errors,
-            loc=[enums.Location.BODY, "name"],
-            msg="User Type already exists"
-        )
-
-    if errors:
-        return error_responses.pydantic_error_response(errors)
-
-    create_db_user_type = controller.create(user_type=user_type)
-
-    return create_db_user_type
+    return controller.create(user_type)
 
 
 @router.delete(
