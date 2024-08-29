@@ -66,7 +66,7 @@ class UserTypesService:
 
             session.commit()
 
-        except IntegrityError as e:
+        except IntegrityError:
             session.rollback()
 
             raise HTTPException(status_code=400,
