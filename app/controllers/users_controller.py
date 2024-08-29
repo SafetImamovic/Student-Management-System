@@ -1,11 +1,10 @@
 from app.controllers.base_controller import BaseController
-from app.database.models.users import User
 from app.database.schemas.users import (
     User as UserSchema,
     UserCreate as UserCreateSchema
 )
-
-from app.controllers.user_types_controller import UserTypeController
+from app.services.user_types_service import UserTypesService
+from app.services.users_service import UserService
 
 
 class UserController(BaseController):
@@ -15,7 +14,7 @@ class UserController(BaseController):
         :return:
         """
 
-        return self.session.query(User).count()
+        return UserService.get_count(self.session)
 
     def get_by_id(self, user_id: int) -> UserSchema:
         """
@@ -25,7 +24,7 @@ class UserController(BaseController):
         :return User:
         """
 
-        return self.session.query(User).filter(User.user_id == user_id).first()
+        return UserService.get_by_id(self.session, user_id)
 
     def get_by_email(self, email: str) -> UserSchema:
         """
@@ -35,7 +34,7 @@ class UserController(BaseController):
         :return User:
         """
 
-        return self.session.query(User).filter(User.email == email).first()
+        return UserService.get_by_email(self.session, email)
 
     def get_all(self, user_type_id: int = None, skip: int = 0, limit: int = 10) -> list[UserSchema]:
         """
@@ -48,15 +47,11 @@ class UserController(BaseController):
         """
 
         if user_type_id is not None:
-            return (
-                self.session.query(User)
-                .filter(User.user_type_id == user_type_id)
-                .offset(skip)
-                .limit(limit)
-                .all()
-            )
+            UserTypesService.get_by_id(self.session, user_type_id)
 
-        return self.session.query(User).offset(skip).limit(limit).all()
+        users = UserService.get_all(self.session, skip=skip, limit=limit, user_type_id=user_type_id)
+
+        return users
 
     def create(self, user: UserCreateSchema) -> UserSchema:
         """
@@ -68,49 +63,25 @@ class UserController(BaseController):
         :param user: schemas.UserCreate
         :return: User
         """
-        hashed_password = user.password + "fakehashed"
 
-        db_user = User(
-            email=user.email,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            username=user.username,
-            age=user.age,
-            is_active=user.is_active,
-            user_type_id=user.user_type_id,
-            hashed_password=hashed_password
-        )
+        UserTypesService.get_by_id(self.session, user.user_type_id)
 
-        self.session.add(db_user)
-
-        self.session.commit()
-
-        self.session.refresh(db_user)
-
-        return db_user
+        return UserService.create(self.session, user)
 
     def deactivate(self, user_id: int) -> UserSchema:
+        """
+        This method deactivates a User
+        :param user_id:
+        :return:
+        """
 
-        db_user = self.session.query(User).filter(User.user_id == user_id).first()
-
-        if db_user:
-            db_user.is_active = False
-
-            self.session.commit()
-
-            self.session.refresh(db_user)
-
-        return db_user
+        return UserService.deactivate(self.session, user_id)
 
     def activate(self, user_id: int) -> UserSchema:
+        """
+        This method activates a User
+        :param user_id:
+        :return:
+        """
 
-        db_user = self.session.query(User).filter(User.user_id == user_id).first()
-
-        if db_user:
-            db_user.is_active = True
-
-            self.session.commit()
-
-            self.session.refresh(db_user)
-
-        return db_user
+        return UserService.activate(self.session, user_id)

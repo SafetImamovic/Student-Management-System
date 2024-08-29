@@ -8,6 +8,8 @@ from app.database.schemas.user_types import (
     UserTypeCreate as UserTypeCreateSchema
 )
 
+from app.services.user_types_service import UserTypesService
+
 
 class UserTypeController(BaseController):
     def get_count(self) -> int:
@@ -16,7 +18,7 @@ class UserTypeController(BaseController):
         :return:
         """
 
-        return self.session.query(UserType).count()
+        return UserTypesService.get_count(self.session)
 
     def get_by_id(self, user_type_id: int) -> UserTypeSchema:
         """
@@ -25,7 +27,7 @@ class UserTypeController(BaseController):
         :return: The UserType with the given user_type_id
         """
 
-        return self.session.query(UserType).filter(UserType.user_type_id == user_type_id).first()
+        return UserTypesService.get_by_id(self.session, user_type_id)
 
     def get_by_name(self, name: str) -> UserTypeSchema:
         """
