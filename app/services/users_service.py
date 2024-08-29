@@ -45,7 +45,12 @@ class UserService:
     def create(session: Session, user: UserCreate):
         hashed_password = user.password + "fakehashed"
 
-        db_user = User(
+        db_user = session.query(User).filter(User.email == user.email).first()
+
+        if db_user:
+            raise HTTPException(status_code=409, detail=f"User already exists with the email: {user.email}")
+
+        db_user_create = User(
             email=user.email,
             first_name=user.first_name,
             last_name=user.last_name,
@@ -57,18 +62,18 @@ class UserService:
         )
 
         try:
-            session.add(db_user)
+            session.add(db_user_create)
 
             session.commit()
 
-            session.refresh(db_user)
+            session.refresh(db_user_create)
 
         except IntegrityError as e:
             session.rollback()
 
             raise HTTPException(status_code=409, detail=str(e))
 
-        return db_user
+        return db_user_create
 
     @staticmethod
     def deactivate(session: Session, user_id: int):
