@@ -4,6 +4,7 @@ from app.database.schemas.courses import (
     Course as CourseSchema,
     CourseCreate as CourseCreateSchema
 )
+from app.services.courses_service import CourseService
 
 
 class CourseController(BaseController):
@@ -14,7 +15,7 @@ class CourseController(BaseController):
         :return:
         """
 
-        return self.session.query(Course).count()
+        return CourseService.get_count(self.session)
 
     def get_by_id(self, course_id: int) -> CourseSchema:
         """
@@ -24,7 +25,7 @@ class CourseController(BaseController):
         :return: Course with the given course_id
         """
 
-        return self.session.query(Course).filter(Course.course_id == course_id).first()
+        return CourseService.get_by_id(self.session, course_id)
 
     def get_by_name(self, name: str) -> CourseSchema:
         """
@@ -33,7 +34,7 @@ class CourseController(BaseController):
         :return: Course with given name
         """
 
-        return self.session.query(Course).filter(Course.name == name).first()
+        return CourseService.get_by_name(self.session, name)
 
     def get_all(self, skip: int = 0, limit: int = 10) -> list[CourseSchema]:
         """
@@ -44,7 +45,7 @@ class CourseController(BaseController):
         :return: List[Type[Course]]:
         """
 
-        return self.session.query(Course).offset(skip).limit(limit).all()
+        return CourseService.get_all(self.session, skip, limit)
 
     def create(self, course: CourseCreateSchema) -> CourseSchema:
         """
@@ -53,36 +54,20 @@ class CourseController(BaseController):
         :return: Created Course
         """
 
-        db_course = Course(**course.dict())
-
-        self.session.add(db_course)
-
-        self.session.commit()
-
-        self.session.refresh(db_course)
-
-        return db_course
+        return CourseService.create(self.session, course)
 
     def deactivate(self, course_id: int) -> CourseSchema:
-        db_course = self.session.query(Course).filter(Course.course_id == course_id).first()
-
-        if db_course:
-            db_course.is_active = False
-
-            self.session.commit()
-
-            self.session.refresh(db_course)
-
-        return db_course
+        """
+        This method deactivates a course based on the given course_id
+        :param course_id:
+        :return:
+        """
+        return CourseService.deactivate(self.session, course_id)
 
     def activate(self, course_id: int) -> CourseSchema:
-        db_course = self.session.query(Course).filter(Course.course_id == course_id).first()
-
-        if db_course:
-            db_course.is_active = True
-
-            self.session.commit()
-
-            self.session.refresh(db_course)
-
-        return db_course
+        """
+        This method activates a course based on the given course_id
+        :param course_id:
+        :return:
+        """
+        return CourseService.activate(self.session, course_id)

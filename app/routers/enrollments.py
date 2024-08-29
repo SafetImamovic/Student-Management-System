@@ -49,12 +49,7 @@ def get_by_id(
     :return: The Enrollment instance
     """
 
-    db_enrollment = controller.get_by_id(user_id=user_id, course_id=course_id)
-
-    if not db_enrollment:
-        raise HTTPException(status_code=404, detail="Enrollment not found")
-
-    return db_enrollment
+    return controller.get_by_id(user_id, course_id)
 
 
 @router.get(
@@ -76,9 +71,7 @@ def get_all(
     :return: The list of Enrollments
     """
 
-    db_enrollments = controller.get_all(skip=skip, limit=limit)
-
-    return db_enrollments
+    return controller.get_all(skip=skip, limit=limit)
 
 
 @router.post(
@@ -87,54 +80,16 @@ def get_all(
 )
 def create(
     enrollment: schemas.EnrollmentCreate,
-    user_controller: Annotated[UserController, Depends(UserController)],
-    course_controller: Annotated[CourseController, Depends(CourseController)],
-    enrollment_controller: Annotated[EnrollmentController, Depends(EnrollmentController)]
+    controller: Annotated[EnrollmentController, Depends(EnrollmentController)]
 ):
     """
     This path operation creates an Enrollment using the crud.create_enrollment() function
-    :param enrollment_controller:
-    :param course_controller:
-    :param user_controller:
-    :param enrollment: schemas.EnrollmentCreate
-    :return: The Enrollment instance
+    :param enrollment:
+    :param controller:
+    :return:
     """
 
-    errors = []
-
-    db_exists = enrollment_controller.get_by_id(user_id=enrollment.user_id, course_id=enrollment.course_id)
-
-    if db_exists:
-        error_responses.add_error(
-            errors=errors,
-            loc=[enums.Location.BODY, "user_id", "course_id"],
-            msg="Enrollment already exists"
-        )
-
-    db_user = user_controller.get_by_id(user_id=enrollment.user_id)
-
-    if not db_user:
-        error_responses.add_error(
-            errors=errors,
-            loc=[enums.Location.BODY, "user_id"],
-            msg=f"User not found for User ID: {enrollment.user_id}"
-        )
-
-    db_course = course_controller.get_by_id(course_id=enrollment.course_id)
-
-    if not db_course:
-        error_responses.add_error(
-            errors=errors,
-            loc=[enums.Location.BODY, "course_id"],
-            msg=f"Course not found for Course ID: {enrollment.course_id}"
-        )
-
-    if errors:
-        return error_responses.pydantic_error_response(errors)
-
-    db_enrollment = enrollment_controller.create(enrollment)
-
-    return db_enrollment
+    return controller.create(enrollment)
 
 
 @router.delete(
@@ -153,19 +108,5 @@ def delete(
     :param controller:
     :return:
     """
-
-    errors = []
-
-    db_enrollment = controller.get_by_id(user_id=user_id, course_id=course_id)
-
-    if not db_enrollment:
-        error_responses.add_error(
-            errors=errors,
-            loc=[enums.Location.BODY, "user_id", "course_id"],
-            msg="Enrollment not found."
-        )
-
-    if errors:
-        return error_responses.pydantic_error_response(errors)
 
     return controller.delete(user_id, course_id)

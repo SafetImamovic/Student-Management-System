@@ -47,12 +47,7 @@ def get_by_id(
     :return: The Course instance
     """
 
-    db_course = controller.get_by_id(course_id=course_id)
-
-    if not db_course:
-        raise HTTPException(status_code=404, detail="Course not found")
-
-    return db_course
+    return controller.get_by_id(course_id)
 
 
 @router.get(
@@ -73,12 +68,7 @@ def get_by_name(
     :return: The Course instance
     """
 
-    db_course = controller.get_by_name(name=name)
-
-    if not db_course:
-        raise HTTPException(status_code=404, detail="Course not found")
-
-    return db_course
+    return controller.get_by_name(name)
 
 
 @router.get(
@@ -101,9 +91,7 @@ def get_all(
     :return: The list of Courses
     """
 
-    courses = controller.get_all(skip=skip, limit=limit)
-
-    return courses
+    return controller.get_all(skip=skip, limit=limit)
 
 
 @router.post(
@@ -124,21 +112,7 @@ def create(
     :return: Created Course instance.
     """
 
-    errors = []
-
-    db_course = controller.get_by_name(name=course.name)
-
-    if db_course:
-        error_responses.add_error(
-            errors=errors,
-            loc=[enums.Location.BODY, "name"],
-            msg="Course already exists"
-        )
-
-    if errors:
-        return error_responses.pydantic_error_response(errors)
-
-    return controller.create(course=course)
+    return controller.create(course)
 
 
 @router.put(
@@ -159,14 +133,7 @@ def deactivate(
     :return: The Course instance with is_active set to False
     """
 
-    db_course = controller.get_by_id(course_id=course_id)
-
-    if not db_course:
-        raise HTTPException(status_code=404, detail="Course not found")
-
-    db_course = controller.deactivate(course_id=course_id)
-
-    return db_course
+    return controller.deactivate(course_id)
 
 
 @router.put(
@@ -184,14 +151,4 @@ def activate(
     :return: The reactivated Course instance
     """
 
-    db_course = controller.get_by_id(course_id=course_id)
-
-    if not db_course:
-        raise HTTPException(status_code=404, detail="Course not found")
-
-    if db_course.is_active:
-        raise HTTPException(status_code=400, detail="Course is already active")
-
-    db_course = controller.activate(course_id=course_id)
-
-    return db_course
+    return controller.activate(course_id)

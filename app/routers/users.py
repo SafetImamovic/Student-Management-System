@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.controllers.user_types_controller import UserTypeController
@@ -51,12 +51,7 @@ def get_by_id(
     :return: The User instance
     """
 
-    db_user = controller.get_by_id(user_id=user_id)
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return db_user
+    return controller.get_by_id(user_id)
 
 
 @router.get(
@@ -77,12 +72,7 @@ def get_by_email(
     :return: The User instance
     """
 
-    db_user = controller.get_by_email(email=email)
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return db_user
+    return controller.get_by_email(email)
 
 
 @router.get(
@@ -93,8 +83,7 @@ def get_by_email(
     response_model=list[UserSchema]
 )
 def get_all(
-    user_controller: Annotated[UserController, Depends(UserController)],
-    user_type_controller: Annotated[UserTypeController, Depends(UserTypeController)],
+    controller: Annotated[UserController, Depends(UserController)],
     user_type_id: int = None,
     skip: int = 0,
     limit: int = 10
@@ -106,21 +95,14 @@ def get_all(
 
     It has user_type_id query parameter which returns all users which match that user_type_id.
 
-    :param user_controller:
-    :param user_type_controller:
+    :param controller:
     :param user_type_id:
     :param skip:
     :param limit:
     :return:
     """
-    db_user_type = user_type_controller.get_by_id(user_type_id=user_type_id)
 
-    if not db_user_type and user_type_id is not None:
-        raise HTTPException(status_code=404, detail="User Type not found")
-
-    users = user_controller.get_all(skip=skip, limit=limit, user_type_id=user_type_id)
-
-    return users
+    return controller.get_all(user_type_id, skip, limit)
 
 
 @router.post(
@@ -132,41 +114,16 @@ def get_all(
 )
 def create(
     user: UserCreateSchema,
-    user_controller: Annotated[UserController, Depends(UserController)],
-    user_type_controller: Annotated[UserTypeController, Depends(UserTypeController)]
+    controller: Annotated[UserController, Depends(UserController)],
 ):
     """
     This path operation creates a new user using the crud.create_user() function.
-    :param user_type_controller:
-    :param user_controller:
-    :param user: schemas.UserCreate
-    :return: Created User instance.
+    :param user:
+    :param controller:
+    :return:
     """
 
-    errors = []
-
-    db_user = user_controller.get_by_email(email=user.email)
-
-    if db_user:
-        error_responses.add_error(
-            errors=errors,
-            loc=[enums.Location.BODY, "email"],
-            msg="Email already registered"
-        )
-
-    db_user_type = user_type_controller.get_by_id(user.user_type_id)
-
-    if db_user_type is None:
-        error_responses.add_error(
-            errors=errors,
-            loc=[enums.Location.BODY, "user_type_id"],
-            msg="User Type doesn't exist"
-        )
-
-    if errors:
-        return error_responses.pydantic_error_response(errors)
-
-    return user_controller.create(user=user)
+    return controller.create(user=user)
 
 
 @router.put(
@@ -187,14 +144,7 @@ def deactivate(
     :return: The User instance with is_active set to False
     """
 
-    db_user = controller.get_by_id(user_id=user_id)
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    db_user = controller.deactivate(user_id=user_id)
-
-    return db_user
+    return controller.deactivate(user_id=user_id)
 
 
 @router.put(
@@ -215,14 +165,4 @@ def activate(
     :return: The reactivated User instance
     """
 
-    db_user = controller.get_by_id(user_id=user_id)
-
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    if db_user.is_active:
-        raise HTTPException(status_code=400, detail="User is already active")
-
-    db_user = controller.activate(user_id=user_id)
-
-    return db_user
+    return controller.activate(user_id=user_id)
