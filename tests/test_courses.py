@@ -5,10 +5,25 @@ from app.database.models.courses import Course
 client = TestClient(app)
 
 
-def test_create_course(create_course):
-    assert create_course['name'] == "Test Course"
+def test_create_course(db_session):
+    course_data = {
+        "name": "Test Course 2",
+        "description": "Test Description 2",
+        "start_date": "2024-09-02",
+        "end_date": "2024-09-02",
+    }
 
-    assert create_course['description'] == "Test Description"
+    response = client.post(prefix + "/courses/", json=course_data)
+
+    assert response.status_code == 200
+
+    course = response.json()
+
+    assert course['name'] == "Test Course 2"
+
+    db_session.query(Course).filter(Course.course_id == course['course_id']).delete()
+
+    db_session.commit()
 
 
 def test_get_count(create_course):

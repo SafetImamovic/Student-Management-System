@@ -55,7 +55,7 @@ def create_user(db_session: Session, create_user_type, request):
     """
 
     # user_state = request.param if hasattr(request, 'param') else True
-    user_state = request.param
+    user_state = request.param if hasattr(request, 'param') else True
 
     user_data = {
         "first_name": "Test",
@@ -109,3 +109,31 @@ def create_course(db_session: Session):
     db_session.commit()
 
 
+@pytest.fixture
+def create_enrollment(create_user, create_course, db_session: Session):
+    """
+    Fixture to create and clean up an enrollment for testing.
+    """
+
+    enrollment_data = {
+        "user_id": create_user['user_id'],
+        "course_id": create_course['course_id'],
+        "enrolled_date": "2024-09-02",
+        "end_date": "2024-09-02",
+        "associative_data": "Test Associative Data",
+    }
+
+    response = client.post(prefix + "/enrollments/", json=enrollment_data)
+
+    assert response.status_code == 200
+
+    enrollment = response.json()
+
+    yield enrollment
+
+    db_session.query(Enrollment).filter(
+        Enrollment.user_id == enrollment['user_id'],
+        Enrollment.course_id == enrollment['course_id']
+    ).delete()
+
+    db_session.commit()

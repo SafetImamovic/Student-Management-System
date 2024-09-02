@@ -39,10 +39,10 @@ app.include_router(enrollments.router, prefix=prefix)
 app.include_router(utility.router, prefix=prefix)
 
 
-@app.on_event("startup")
-def on_startup():
-    """On server startup, seed the database."""
-    db = SessionLocal()
-    uc = UtilityController(db);
-    seed(uc)
-    db.close()
+# @app.on_event("startup")
+# def on_startup():
+#     """On server startup, seed the database."""
+#     db = SessionLocal()
+#     uc = UtilityController(db);
+#     seed(uc)
+#     db.close()
