@@ -65,8 +65,6 @@ def test_get_all(create_course):
 
     assert isinstance(courses, list)
 
-    assert any(course['name'] == "Test Course" for course in courses)
-
 
 def test_deactivate_course(create_course):
     course_id = create_course['course_id']

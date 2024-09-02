@@ -90,7 +90,7 @@ def create_course(db_session: Session):
     """
 
     course_data = {
-        "name": "Test Course",
+        "name": "Test Course 2",
         "description": "Test Description",
         "start_date": "2024-09-02",
         "end_date": "2024-09-02",
