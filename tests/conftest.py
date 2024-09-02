@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from main import app, prefix
 from app.database.models.users import User
 from app.database.models.user_types import UserType
+from app.database.models.courses import Course
+from app.database.models.enrollments import Enrollment
 from app.database.database import get_db
 
 client = TestClient(app)
@@ -79,3 +81,31 @@ def create_user(db_session: Session, create_user_type, request):
     db_session.query(User).filter(User.user_id == user['user_id']).delete()
 
     db_session.commit()
+
+
+@pytest.fixture
+def create_course(db_session: Session):
+    """
+    Fixture to create and clean up a course for testing.
+    """
+
+    course_data = {
+        "name": "Test Course",
+        "description": "Test Description",
+        "start_date": "2024-09-02",
+        "end_date": "2024-09-02",
+    }
+
+    response = client.post(prefix + "/courses/", json=course_data)
+
+    assert response.status_code == 200
+
+    course = response.json()
+
+    yield course
+
+    db_session.query(Course).filter(Course.course_id == course['course_id']).delete()
+
+    db_session.commit()
+
+
