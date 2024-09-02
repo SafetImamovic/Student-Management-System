@@ -54,14 +54,14 @@ def test_get_all():
     assert len(json_data) <= 10
 
 
-def test_create_user(db_session):
+def test_create_user(db_session, create_user_type):
     user_data = {
         "first_name": "Test2",
         "last_name": "User2",
         "username": "testuser2",
         "email": "testuser2@example.com",
         "age": 25,
-        "user_type_id": 1,
+        "user_type_id": create_user_type['user_type_id'],
         "password": "securepassword"
     }
 

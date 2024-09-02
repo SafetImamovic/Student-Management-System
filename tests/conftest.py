@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from main import app, prefix
 from app.database.models.users import User
+from app.database.models.user_types import UserType
 from app.database.database import get_db
 
 client = TestClient(app)
@@ -23,14 +24,35 @@ def db_session():
 
 
 @pytest.fixture
-def create_user(db_session: Session, request):
+def create_user_type(db_session: Session):
+    """
+    Fixture to create and clean up a user type for testing.
+    """
+
+    user_type_data = {"name": "Test User Type"}
+
+    response = client.post(prefix + "/user_types/", json=user_type_data)
+
+    assert response.status_code == 200
+
+    user_type = response.json()
+
+    yield user_type
+
+    db_session.query(UserType).filter(UserType.user_type_id == user_type['user_type_id']).delete()
+
+    db_session.commit()
+
+
+@pytest.fixture
+def create_user(db_session: Session, create_user_type, request):
     """
     Fixture to create and clean up a test user with a specified initial state.
 
     The initial state (active or inactive) is determined by a parameter.
     """
 
-    #user_state = request.param if hasattr(request, 'param') else True
+    # user_state = request.param if hasattr(request, 'param') else True
     user_state = request.param
 
     user_data = {
@@ -39,7 +61,7 @@ def create_user(db_session: Session, request):
         "username": "testuser",
         "email": "testuser@example.com",
         "age": 25,
-        "user_type_id": 1,
+        "user_type_id": create_user_type['user_type_id'],
         "password": "securepassword",
         "is_active": user_state
     }
