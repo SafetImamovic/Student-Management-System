@@ -14,6 +14,7 @@ def test_get_count():
     assert isinstance(response.json(), int)
 
 
+@pytest.mark.parametrize("create_user", [True], indirect=True)
 def test_get_by_id(create_user):
     user_id = create_user['user_id']
 
@@ -28,6 +29,7 @@ def test_get_by_id(create_user):
     assert 'email' in json_data
 
 
+@pytest.mark.parametrize("create_user", [True], indirect=True)
 def test_get_by_email(create_user):
     email = create_user['email']
 
@@ -76,8 +78,11 @@ def test_create_user(db_session):
     db_session.commit()
 
 
-def test_deactivate_user():
-    response = client.put(prefix + "/users/1")
+@pytest.mark.parametrize("create_user", [True], indirect=True)
+def test_deactivate_user(create_user):
+    user_id = create_user['user_id']
+
+    response = client.put(prefix + f"/users/{user_id}")
 
     assert response.status_code == 200
 
@@ -86,8 +91,11 @@ def test_deactivate_user():
     assert not json_data['is_active']
 
 
-def test_activate_user():
-    response = client.put(prefix + "/users/activate/1")
+@pytest.mark.parametrize("create_user", [False], indirect=True)
+def test_activate_user(create_user):
+    user_id = create_user['user_id']
+
+    response = client.put(prefix + f"/users/activate/{user_id}")
 
     assert response.status_code == 200
 

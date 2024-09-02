@@ -22,13 +22,16 @@ def db_session():
         db.close()
 
 
-@pytest.fixture(scope="function")
-def create_user(db_session: Session):
+@pytest.fixture
+def create_user(db_session: Session, request):
     """
-    Fixture to create and clean up a test user.
+    Fixture to create and clean up a test user with a specified initial state.
 
-    This is created so that the test_get_by_email() and test_get_by_id() methods pass.
+    The initial state (active or inactive) is determined by a parameter.
     """
+
+    #user_state = request.param if hasattr(request, 'param') else True
+    user_state = request.param
 
     user_data = {
         "first_name": "Test",
@@ -37,7 +40,8 @@ def create_user(db_session: Session):
         "email": "testuser@example.com",
         "age": 25,
         "user_type_id": 1,
-        "password": "securepassword"
+        "password": "securepassword",
+        "is_active": user_state
     }
 
     response = client.post(prefix + "/users/", json=user_data)
