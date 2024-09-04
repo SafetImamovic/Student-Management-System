@@ -28,6 +28,45 @@ def test_create_enrollment(db_session, create_user, create_course):
     db_session.commit()
 
 
+def test_create_enrollment_conflict(db_session, create_user, create_course):
+    enrollment_data = {
+        "user_id": create_user['user_id'],
+        "course_id": create_course['course_id'],
+        "enrolled_date": "2024-09-02",
+        "end_date": "2024-09-02",
+        "associative_data": "Test Associative Data 2",
+    }
+
+    first_object = client.post(prefix + "/enrollments/", json=enrollment_data)
+
+    response = client.post(prefix + "/enrollments/", json=enrollment_data)
+
+    assert response.status_code == 409
+
+    enrollment = first_object.json()
+
+    db_session.query(Enrollment).filter(
+        Enrollment.user_id == enrollment['user_id'],
+        Enrollment.course_id == enrollment['course_id']
+    ).delete()
+
+    db_session.commit()
+
+
+def test_create_enrollment_wrong_field_types(create_user, create_course):
+    enrollment_data = {
+        "user_id": create_user['user_id'],
+        "course_id": create_course['course_id'],
+        "enrolled_date": True,
+        "end_date": False,
+        "associative_data": 1,
+    }
+
+    response = client.post(prefix + "/enrollments/", json=enrollment_data)
+
+    assert response.status_code == 422
+
+
 def test_get_count(create_enrollment):
     response = client.get(prefix + "/enrollments/count/")
 
@@ -50,6 +89,12 @@ def test_get_by_id(create_enrollment):
     assert enrollment['user_id'] == user_id
 
     assert enrollment['course_id'] == course_id
+
+
+def test_get_by_id_not_found():
+    response = client.get(prefix + f"/enrollments/0")
+
+    assert response.status_code == 404
 
 
 def test_get_all(create_enrollment):
