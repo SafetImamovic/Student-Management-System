@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status
 
 from app.controllers.user_types_controller import UserTypeController
 from app.database.schemas.user_types import (
@@ -98,7 +98,8 @@ def get_all(
 
 @router.post(
     '/',
-    response_model=UserTypeSchema
+    response_model=UserTypeSchema,
+    status_code=status.HTTP_201_CREATED
 )
 def create(
     user_type: UserTypeCreateSchema,

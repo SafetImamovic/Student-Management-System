@@ -15,7 +15,7 @@ def test_create_course(db_session):
 
     response = client.post(prefix + "/courses/", json=course_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     course = response.json()
 

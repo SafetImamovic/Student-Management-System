@@ -67,7 +67,7 @@ def test_create_user(db_session, create_user_type):
 
     response = client.post(prefix + "/users/", json=user_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     user = response.json()
 

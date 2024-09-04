@@ -16,7 +16,7 @@ def test_create_enrollment(db_session, create_user, create_course):
 
     response = client.post(prefix + "/enrollments/", json=enrollment_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     enrollment = response.json()
 

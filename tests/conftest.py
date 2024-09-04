@@ -35,7 +35,7 @@ def create_user_type(db_session: Session):
 
     response = client.post(prefix + "/user_types/", json=user_type_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     user_type = response.json()
 
@@ -70,7 +70,7 @@ def create_user(db_session: Session, create_user_type, request):
 
     response = client.post(prefix + "/users/", json=user_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     user = response.json()
 
@@ -98,7 +98,7 @@ def create_course(db_session: Session):
 
     response = client.post(prefix + "/courses/", json=course_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     course = response.json()
 
@@ -125,7 +125,7 @@ def create_enrollment(create_user, create_course, db_session: Session):
 
     response = client.post(prefix + "/enrollments/", json=enrollment_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     enrollment = response.json()
 
