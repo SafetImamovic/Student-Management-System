@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.controllers.user_types_controller import UserTypeController
@@ -111,6 +111,7 @@ def get_all(
 
     },
     response_model=UserSchema,
+    status_code=status.HTTP_201_CREATED
 )
 def create(
     user: UserCreateSchema,

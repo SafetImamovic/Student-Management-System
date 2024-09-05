@@ -31,6 +31,8 @@
         </toc-element>
         <toc-element topic="Week-4.md">
             <toc-element topic="1-Service-Layer.md"/>
+            <toc-element topic="2-Pytest.md"/>
+            <toc-element topic="3-Fixtures.md"/>
         </toc-element>
     </toc-element>
 </instance-profile>

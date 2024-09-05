@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status
 
 from app.controllers.courses_controller import CourseController
 from app.database.schemas.courses import (
@@ -99,7 +99,8 @@ def get_all(
     responses={
 
     },
-    response_model=CourseSchema
+    response_model=CourseSchema,
+    status_code=status.HTTP_201_CREATED
 )
 def create(
     course: CourseCreateSchema,
